@@ -18,7 +18,7 @@ const Niveles = () => {
 
   const cargarNiveles = async () => {
     const res = await getNiveles();
-    setNiveles(res.data || []);
+    setNiveles(Array.isArray(res.data) ? res.data : []);
   };
 
   const handleAdd = async () => {
@@ -58,20 +58,19 @@ const Niveles = () => {
 
       <ul className="bg-white rounded shadow divide-y">
         {Array.isArray(niveles) &&
-  niveles.map((n) => (
-    <li key={n.id}>{n.nivel} – {n.puntos}</li>
-  ))}
-          <li key={n.id} className="p-2 flex justify-between items-center">
-            <span>
-              <strong>{n.nivel}</strong> – {n.puntos} pts
-            </span>
-            <button
-              onClick={() => setEditando(n)}
-              className="text-blue-600 hover:underline"
-            >
-              {t("Editar")}
-            </button>
-          </li>        
+          niveles.map((nivel) => (
+            <li key={nivel.id} className="p-2 flex justify-between items-center">
+              <span>
+                <strong>{nivel.nivel}</strong> – {nivel.puntos} pts
+              </span>
+              <button
+                onClick={() => setEditando(nivel)}
+                className="text-blue-600 hover:underline"
+              >
+                {t("Editar")}
+              </button>
+            </li>
+          ))}
       </ul>
 
       {editando && (
