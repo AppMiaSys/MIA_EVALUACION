@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: mia-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    rootDir: backend
+
+  - type: web
+    name: mia-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build
+    rootDir: frontend
