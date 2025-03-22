@@ -118,7 +118,7 @@ const Configuracion = () => {
                   <div className="mt-1 text-gray-700">
                     <strong>{t("Resultados")}:</strong>
                     <ul className="list-disc list-inside text-xs">
-                      {resultados[emp.dni].map((r, idx) => (
+                      {Array.isArray(resultados[emp.dni]) && resultados[emp.dni].map((r, idx) => (
                         <li key={idx}>
                           {r.fecha} - {r.categoria}: {r.nivel}
                         </li>
@@ -200,20 +200,16 @@ const Configuracion = () => {
         </div>
 
         <ul className="list-disc list-inside bg-white p-3 rounded shadow">
-          {Array.isArray(categorias) &&
-  categorias.map((cat) => (
-    <option key={cat.id} value={cat.id}>
-      {cat.nombre}
-    </option>
-  ))}
-
+          {Array.isArray(categorias) && categorias.map((c) => (
+            <li key={c.id}>{c.nombre}</li>
+          ))}
         </ul>
       </section>
 
       {/* === PREGUNTAS === */}
       <section>
         <h2 className="text-xl font-semibold mb-2">{t("Preguntas")}</h2>
-        <Preguntas categorias={categorias} />
+        <Preguntas categorias={categorias || []} />
       </section>
 
       {/* === NIVELES === */}
@@ -225,7 +221,7 @@ const Configuracion = () => {
       {/* === ASIGNACIONES === */}
       <section>
         <h2 className="text-xl font-semibold mb-2">{t("Asignaciones")}</h2>
-        <Asignaciones empleados={empleados} />
+        <Asignaciones empleados={empleados || []} />
       </section>
     </div>
   );
