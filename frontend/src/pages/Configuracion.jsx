@@ -8,6 +8,9 @@ import {
   getResultadosPorEmpleado
 } from "../services/api";
 import { useTranslation } from "react-i18next";
+import Preguntas from "../components/Preguntas";
+import Niveles from "../components/Niveles";
+import Asignaciones from "../components/Asignaciones";
 
 const Configuracion = () => {
   const { t } = useTranslation();
@@ -18,16 +21,22 @@ const Configuracion = () => {
   const [resultados, setResultados] = useState({});
   const [categorias, setCategorias] = useState([]);
   const [nuevaCategoria, setNuevaCategoria] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
   const cargarDatos = async () => {
-    const resEmp = await getEmpleados();
-    const resCat = await getCategorias();
-    setEmpleados(resEmp.data || []);
-    setCategorias(resCat.data || []);
+    try {
+      const resEmp = await getEmpleados();
+      const resCat = await getCategorias();
+      setEmpleados(Array.isArray(resEmp.data) ? resEmp.data : []);
+      setCategorias(Array.isArray(resCat.data) ? resCat.data : []);
+    } catch (err) {
+      console.error(err);
+      setError(t("Error al cargar los datos"));
+    }
   };
 
   const handleAddEmpleado = async () => {
@@ -56,8 +65,10 @@ const Configuracion = () => {
   };
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto font-inter text-sm">
+    <div className="space-y-12 max-w-6xl mx-auto font-inter text-sm p-4">
       <h1 className="text-2xl font-bold text-mia">{t("Configuración del Sistema")}</h1>
+
+      {error && <p className="text-red-600 bg-red-100 p-3 rounded">{error}</p>}
 
       {/* === EMPLEADOS === */}
       <section>
@@ -98,7 +109,7 @@ const Configuracion = () => {
         </div>
 
         <ul className="divide-y border rounded shadow-sm bg-white">
-          {empleados.map((emp) => (
+          {Array.isArray(empleados) && empleados.map((emp) => (
             <li key={emp.dni} className="p-2 flex justify-between items-start">
               <div>
                 <strong>{emp.nombre}</strong> ({emp.dni})<br />
@@ -189,29 +200,27 @@ const Configuracion = () => {
         </div>
 
         <ul className="list-disc list-inside bg-white p-3 rounded shadow">
-          {categorias.map((c) => (
+          {Array.isArray(categorias) && categorias.map((c) => (
             <li key={c.id}>{c.nombre}</li>
           ))}
         </ul>
       </section>
+
       {/* === PREGUNTAS === */}
       <section>
         <h2 className="text-xl font-semibold mb-2">{t("Preguntas")}</h2>
-
         <Preguntas categorias={categorias} />
       </section>
 
       {/* === NIVELES === */}
       <section>
         <h2 className="text-xl font-semibold mb-2">{t("Niveles de Calificación")}</h2>
-
         <Niveles />
       </section>
 
       {/* === ASIGNACIONES === */}
       <section>
         <h2 className="text-xl font-semibold mb-2">{t("Asignaciones")}</h2>
-
         <Asignaciones empleados={empleados} />
       </section>
     </div>
@@ -219,4 +228,3 @@ const Configuracion = () => {
 };
 
 export default Configuracion;
-
