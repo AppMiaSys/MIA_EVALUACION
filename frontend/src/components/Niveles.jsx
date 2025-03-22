@@ -57,7 +57,10 @@ const Niveles = () => {
       </div>
 
       <ul className="bg-white rounded shadow divide-y">
-        {niveles.map((n) => (
+        {Array.isArray(niveles) &&
+  niveles.map((n) => (
+    <li key={n.id}>{n.nivel} – {n.puntos}</li>
+  ))}
           <li key={n.id} className="p-2 flex justify-between items-center">
             <span>
               <strong>{n.nivel}</strong> – {n.puntos} pts
@@ -68,8 +71,7 @@ const Niveles = () => {
             >
               {t("Editar")}
             </button>
-          </li>
-        ))}
+          </li>        
       </ul>
 
       {editando && (
