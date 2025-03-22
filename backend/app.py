@@ -1,119 +1,151 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
 import sqlite3
 
 app = Flask(__name__)
 CORS(app)
 
-DB_PATH = "mia_evaluacion.db"
-
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect("mia_evaluacion.db")
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route("/api/login", methods=["POST"])
-def login():
-    data = request.json
-    conn = get_db()
-    user = conn.execute("SELECT * FROM usuarios WHERE dni = ? AND password = ?", (data['dni'], data['password'])).fetchone()
-    conn.close()
-    if user:
-        return jsonify({"success": True, "role": user['rol'], "nombre": user['nombre']})
-    return jsonify({"success": False}), 401
+# === EMPLEADOS ===
 
-@app.route("/api/evaluaciones", methods=["GET", "POST"])
+@app.route("/api/empleados", methods=["GET", "POST", "PUT"])
+def empleados():
+    conn = get_db()
+    if request.method == "GET":
+        empleados = conn.execute("SELECT * FROM empleados").fetchall()
+        conn.close()
+        return jsonify([dict(e) for e in empleados])
+    elif request.method == "POST":
+        data = request.json
+        conn.execute("INSERT INTO empleados (dni, nombre, sucursal, area) VALUES (?, ?, ?, ?)",
+                     (data["dni"], data["nombre"], data["sucursal"], data["area"]))
+        conn.commit()
+        return jsonify({"status": "ok"})
+    elif request.method == "PUT":
+        data = request.json
+        conn.execute("UPDATE empleados SET nombre=?, sucursal=?, area=? WHERE dni=?",
+                     (data["nombre"], data["sucursal"], data["area"], data["dni"]))
+        conn.commit()
+        return jsonify({"status": "updated"})
+
+# === CATEGORÍAS DE PREGUNTAS ===
+
+@app.route("/api/categorias", methods=["GET", "POST"])
+def categorias():
+    conn = get_db()
+    if request.method == "GET":
+        categorias = conn.execute("SELECT * FROM categorias").fetchall()
+        conn.close()
+        return jsonify([dict(c) for c in categorias])
+    elif request.method == "POST":
+        data = request.json
+        conn.execute("INSERT INTO categorias (nombre) VALUES (?)", (data["nombre"],))
+        conn.commit()
+        return jsonify({"status": "ok"})
+
+# === PREGUNTAS ===
+
+@app.route("/api/preguntas", methods=["GET", "POST", "PUT"])
+def preguntas():
+    conn = get_db()
+    if request.method == "GET":
+        preguntas = conn.execute("""
+            SELECT p.id, p.texto, p.categoria_id, c.nombre AS categoria 
+            FROM preguntas p 
+            JOIN categorias c ON p.categoria_id = c.id
+        """).fetchall()
+        conn.close()
+        return jsonify([dict(p) for p in preguntas])
+    elif request.method == "POST":
+        data = request.json
+        conn.execute("INSERT INTO preguntas (texto, categoria_id) VALUES (?, ?)",
+                     (data["texto"], data["categoria_id"]))
+        conn.commit()
+        return jsonify({"status": "ok"})
+    elif request.method == "PUT":
+        data = request.json
+        conn.execute("UPDATE preguntas SET texto=?, categoria_id=? WHERE id=?",
+                     (data["texto"], data["categoria_id"], data["id"]))
+        conn.commit()
+        return jsonify({"status": "updated"})
+
+# === NIVELES DE CALIFICACIÓN ===
+
+@app.route("/api/niveles", methods=["GET", "POST", "PUT"])
+def niveles():
+    conn = get_db()
+    if request.method == "GET":
+        niveles = conn.execute("SELECT * FROM niveles").fetchall()
+        conn.close()
+        return jsonify([dict(n) for n in niveles])
+    elif request.method == "POST":
+        data = request.json
+        conn.execute("INSERT INTO niveles (nivel, puntos) VALUES (?, ?)",
+                     (data["nivel"], data["puntos"]))
+        conn.commit()
+        return jsonify({"status": "ok"})
+    elif request.method == "PUT":
+        data = request.json
+        conn.execute("UPDATE niveles SET nivel=?, puntos=? WHERE id=?",
+                     (data["nivel"], data["puntos"], data["id"]))
+        conn.commit()
+        return jsonify({"status": "updated"})
+
+# === ASIGNACIONES DE EVALUACIONES ===
+
+@app.route("/api/asignaciones", methods=["GET", "POST"])
+def asignaciones():
+    conn = get_db()
+    if request.method == "GET":
+        evaluador = request.args.get("dni")
+        asignados = conn.execute("SELECT evaluado_dni FROM asignaciones WHERE evaluador_dni=?",
+                                 (evaluador,)).fetchall()
+        conn.close()
+        return jsonify([a["evaluado_dni"] for a in asignados])
+    elif request.method == "POST":
+        data = request.json
+        dni = data["evaluador_dni"]
+        lista = data["evaluado_dnis"]
+        conn.execute("DELETE FROM asignaciones WHERE evaluador_dni=?", (dni,))
+        for evaluado in lista:
+            conn.execute("INSERT INTO asignaciones (evaluador_dni, evaluado_dni) VALUES (?, ?)",
+                         (dni, evaluado))
+        conn.commit()
+        return jsonify({"status": "ok"})
+
+# === EVALUACIONES (crear + ver resultados por empleado) ===
+
+@app.route("/api/evaluaciones", methods=["POST", "GET"])
 def evaluaciones():
     conn = get_db()
     if request.method == "POST":
         data = request.json
-        conn.execute("INSERT INTO evaluaciones (evaluador_dni, evaluado_dni, categoria, nivel, comentario, fecha) VALUES (?, ?, ?, ?, ?, ?)",
-                     (data['evaluador_dni'], data['evaluado_dni'], data['categoria'], data['nivel'], data['comentario'], data['fecha']))
+        conn.execute("""
+            INSERT INTO evaluaciones (evaluador_dni, evaluado_dni, categoria, nivel, comentario, fecha)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (data["evaluador_dni"], data["evaluado_dni"], data["categoria"],
+              data["nivel"], data["comentario"], data["fecha"]))
         conn.commit()
-        return jsonify({"status": "Evaluación registrada"})
-    else:
-        rows = conn.execute("SELECT * FROM evaluaciones").fetchall()
+        return jsonify({"status": "ok"})
+    elif request.method == "GET":
+        evaluaciones = conn.execute("SELECT * FROM evaluaciones").fetchall()
         conn.close()
-        return jsonify([dict(r) for r in rows])
+        return jsonify([dict(e) for e in evaluaciones])
 
-@app.route("/api/preguntas", methods=["GET", "POST"])
-def preguntas():
+@app.route("/api/empleado/resultados/<dni>")
+def resultados_empleado(dni):
     conn = get_db()
-    if request.method == "POST":
-        data = request.json
-        conn.execute("INSERT INTO preguntas (categoria, texto) VALUES (?, ?)", (data['categoria'], data['texto']))
-        conn.commit()
-        return jsonify({"status": "Pregunta creada"})
-    preguntas = conn.execute("SELECT * FROM preguntas").fetchall()
+    resultados = conn.execute("""
+        SELECT categoria, nivel, fecha 
+        FROM evaluaciones 
+        WHERE evaluado_dni=?
+    """, (dni,)).fetchall()
     conn.close()
-    return jsonify([dict(p) for p in preguntas])
-
-@app.route("/api/niveles", methods=["GET", "POST"])
-def niveles():
-    conn = get_db()
-    if request.method == "POST":
-        data = request.json
-        conn.execute("INSERT INTO niveles (nivel, puntos) VALUES (?, ?)", (data['nivel'], data['puntos']))
-        conn.commit()
-        return jsonify({"status": "Nivel creado"})
-    niveles = conn.execute("SELECT * FROM niveles").fetchall()
-    conn.close()
-    return jsonify([dict(n) for n in niveles])
-
-@app.route("/api/empleados", methods=["GET", "POST"])
-def empleados():
-    conn = get_db()
-    if request.method == "POST":
-        data = request.json
-        conn.execute("INSERT INTO empleados (dni, nombre, sucursal) VALUES (?, ?, ?)", (data['dni'], data['nombre'], data['sucursal']))
-        conn.commit()
-        return jsonify({"status": "Empleado agregado"})
-    empleados = conn.execute("SELECT * FROM empleados").fetchall()
-    conn.close()
-    return jsonify([dict(e) for e in empleados])
-
-@app.route("/api/dashboard", methods=["GET"])
-def dashboard():
-    conn = get_db()
-    por_categoria = conn.execute("""
-        SELECT categoria, AVG(n.puntos) AS promedio
-        FROM evaluaciones e
-        JOIN niveles n ON e.nivel = n.nivel
-        GROUP BY categoria
-    """).fetchall()
-
-    por_empleado = conn.execute("""
-        SELECT evaluado_dni, AVG(n.puntos) AS promedio
-        FROM evaluaciones e
-        JOIN niveles n ON e.nivel = n.nivel
-        GROUP BY evaluado_dni
-    """).fetchall()
-
-    por_sucursal = conn.execute("""
-        SELECT emp.sucursal, AVG(n.puntos) AS promedio
-        FROM evaluaciones e
-        JOIN empleados emp ON e.evaluado_dni = emp.dni
-        JOIN niveles n ON e.nivel = n.nivel
-        GROUP BY emp.sucursal
-    """).fetchall()
-
-    conn.close()
-    return jsonify({
-        "por_categoria": [dict(r) for r in por_categoria],
-        "por_empleado": [dict(r) for r in por_empleado],
-        "por_sucursal": [dict(r) for r in por_sucursal]
-    })
-
-@app.route("/api/idiomas", methods=["GET"])
-def idiomas():
-    return jsonify(["es", "en", "pt"])
-
-@app.route("/api/ayuda", methods=["GET"])
-def ayuda():
-    return jsonify({"mensaje": "Bienvenido a Mia Evaluación. Si necesitas ayuda, escribe a soporte@mia.com"})
+    return jsonify([dict(r) for r in resultados])
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
+    app.run(debug=True)
