@@ -1,68 +1,53 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { getEmpleados, getResultadosPorEmpleado } from "../services/api";
 import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const [data, setData] = useState({
-    por_categoria: [],
-    por_empleado: [],
-    por_sucursal: [],
-  });
+  const [empleados, setEmpleados] = useState([]);
+  const [resultados, setResultados] = useState({});
+  const [dniSeleccionado, setDniSeleccionado] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await axios.get("/api/dashboard");
-      setData(res.data);
+    const cargar = async () => {
+      const res = await getEmpleados();
+      setEmpleados(res.data || []);
     };
-    fetchData();
+    cargar();
   }, []);
 
+  const verResultados = async (dni) => {
+    const res = await getResultadosPorEmpleado(dni);
+    setResultados({ ...resultados, [dni]: res.data });
+    setDniSeleccionado(dni);
+  };
+
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">{t("Dashboard de Desempeño")}</h1>
+    <div className="max-w-6xl mx-auto p-4 font-inter space-y-6">
+      <h1 className="text-2xl font-bold text-mia">{t("Dashboard")}</h1>
 
-      {/* Gráfico por categoría */}
-      <div>
-        <h2 className="text-lg font-semibold">{t("Promedio por Categoría")}</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.por_categoria}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="categoria" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="promedio" fill="#C10B67" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Gráfico por empleado */}
-      <div>
-        <h2 className="text-lg font-semibold">{t("Promedio por Empleado")}</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.por_empleado}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="evaluado_dni" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="promedio" fill="#FCE200" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Gráfico por sucursal */}
-      <div>
-        <h2 className="text-lg font-semibold">{t("Promedio por Sucursal")}</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data.por_sucursal}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="sucursal" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="promedio" fill="#C10B67" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {empleados.map((e) => (
+          <div key={e.dni} className="bg-white p-4 rounded shadow">
+            <p className="font-semibold">{e.nombre} ({e.dni})</p>
+            <p className="text-sm text-gray-500">{e.area} - {e.sucursal}</p>
+            <button
+              onClick={() => verResultados(e.dni)}
+              className="text-mia underline mt-2 text-sm"
+            >
+              {t("Ver resultados")}
+            </button>
+            {dniSeleccionado === e.dni && resultados[e.dni] && (
+              <ul className="text-xs mt-2 list-disc list-inside text-gray-700">
+                {resultados[e.dni].map((r, idx) => (
+                  <li key={idx}>
+                    {r.fecha} - {r.categoria}: {r.nivel}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
