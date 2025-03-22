@@ -22,11 +22,10 @@ const Evaluacion = () => {
 
   useEffect(() => {
     const cargarDatos = async () => {
-      const asignados = await getAsignaciones(usuario.dni);
       const empleados = await getEmpleados();
-      const filtrados = empleados.data.filter((e) =>
-        asignados.data.includes(e.dni)
-      );
+const lista = Array.isArray(empleados.data) ? empleados.data : [];
+const filtrados = lista.filter((e) => asignados.data.includes(e.dni));
+
       setEvaluados(filtrados);
 
       const resPreg = await getPreguntas();
