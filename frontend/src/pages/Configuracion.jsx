@@ -200,9 +200,13 @@ const Configuracion = () => {
         </div>
 
         <ul className="list-disc list-inside bg-white p-3 rounded shadow">
-          {Array.isArray(categorias) && categorias.map((c) => (
-            <li key={c.id}>{c.nombre}</li>
-          ))}
+          <option value="">{t("Seleccionar categoría")}</option>
+  {Array.isArray(categorias) &&
+    categorias.map((cat) => (
+      <option key={cat.id} value={cat.id}>
+        {cat.nombre}
+      </option>
+    ))}
         </ul>
       </section>
 
