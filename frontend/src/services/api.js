@@ -1,30 +1,34 @@
 import axios from "axios";
 
-// Base de usuario logueado
-const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+const API = axios.create({
+  baseURL: "/api"
+});
 
-// Login
-export const login = (credenciales) => axios.post("/api/login", credenciales);
+// === EMPLEADOS ===
+export const getEmpleados = () => API.get("/empleados");
+export const addEmpleado = (data) => API.post("/empleados", data);
+export const updateEmpleado = (data) => API.put("/empleados", data);
 
-// Evaluaciones
-export const enviarEvaluacion = (evaluacion) => axios.post("/api/evaluaciones", evaluacion);
-export const obtenerEvaluaciones = () => axios.get("/api/evaluaciones");
+// === CATEGORÍAS ===
+export const getCategorias = () => API.get("/categorias");
+export const addCategoria = (data) => API.post("/categorias", data);
 
-// Configuración
-export const obtenerPreguntas = () => axios.get("/api/preguntas");
-export const agregarPregunta = (data) => axios.post("/api/preguntas", data);
+// === PREGUNTAS ===
+export const getPreguntas = () => API.get("/preguntas");
+export const addPregunta = (data) => API.post("/preguntas", data);
+export const updatePregunta = (data) => API.put("/preguntas", data);
 
-export const obtenerNiveles = () => axios.get("/api/niveles");
-export const agregarNivel = (data) => axios.post("/api/niveles", data);
+// === NIVELES ===
+export const getNiveles = () => API.get("/niveles");
+export const addNivel = (data) => API.post("/niveles", data);
+export const updateNivel = (data) => API.put("/niveles", data);
 
-export const obtenerEmpleados = () => axios.get("/api/empleados");
-export const agregarEmpleado = (data) => axios.post("/api/empleados", data);
+// === ASIGNACIONES ===
+export const getAsignaciones = (dni) => API.get(`/asignaciones?dni=${dni}`);
+export const saveAsignaciones = (data) => API.post("/asignaciones", data);
 
-// Dashboard
-export const obtenerDashboard = () => axios.get("/api/dashboard");
-
-// Ayuda
-export const obtenerAyuda = () => axios.get("/api/ayuda");
-
-// Idiomas
-export const obtenerIdiomas = () => axios.get("/api/idiomas");
+// === EVALUACIONES ===
+export const enviarEvaluacion = (data) => API.post("/evaluaciones", data);
+export const getEvaluaciones = () => API.get("/evaluaciones");
+export const getResultadosPorEmpleado = (dni) =>
+  API.get(`/empleado/resultados/${dni}`);
