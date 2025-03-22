@@ -24,7 +24,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-mia-yellow p-6">
       <div className="bg-white p-8 rounded-xl shadow-md max-w-sm w-full space-y-4 text-center">
-        <img src="/logo.png" alt="Logo Mia" className="h-14 mx-auto" />
+        <img src="/logo.svg" alt="Logo Mia" className="h-14 mx-auto" />
         <h2 className="text-2xl font-bold text-mia">{t("Iniciar sesión")}</h2>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <input
