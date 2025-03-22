@@ -1,162 +1,222 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  getEmpleados,
+  addEmpleado,
+  updateEmpleado,
+  getCategorias,
+  addCategoria,
+  getResultadosPorEmpleado
+} from "../services/api";
 import { useTranslation } from "react-i18next";
 
 const Configuracion = () => {
   const { t } = useTranslation();
+
   const [empleados, setEmpleados] = useState([]);
-  const [preguntas, setPreguntas] = useState([]);
-  const [niveles, setNiveles] = useState([]);
+  const [nuevoEmpleado, setNuevoEmpleado] = useState({ dni: "", nombre: "", sucursal: "", area: "" });
+  const [editarEmpleado, setEditarEmpleado] = useState(null);
+  const [resultados, setResultados] = useState({});
+  const [categorias, setCategorias] = useState([]);
+  const [nuevaCategoria, setNuevaCategoria] = useState("");
 
-  // Formulario de empleados
-  const [nuevoEmpleado, setNuevoEmpleado] = useState({ dni: "", nombre: "", sucursal: "" });
+  useEffect(() => {
+    cargarDatos();
+  }, []);
 
-  // Formulario de preguntas
-  const [nuevaPregunta, setNuevaPregunta] = useState({ categoria: "", texto: "" });
-
-  // Formulario de niveles
-  const [nuevoNivel, setNuevoNivel] = useState({ nivel: "", puntos: "" });
-
-useEffect(() => {
   const cargarDatos = async () => {
-    try {
-      const [res1, res2, res3] = await Promise.all([
-        axios.get("/api/empleados"),
-        axios.get("/api/preguntas"),
-        axios.get("/api/niveles")
-      ]);
-
-      setEmpleados(Array.isArray(res1.data) ? res1.data : []);
-      setPreguntas(Array.isArray(res2.data) ? res2.data : []);
-      setNiveles(Array.isArray(res3.data) ? res3.data : []);
-    } catch (err) {
-      console.error("Error cargando datos:", err);
-    }
+    const resEmp = await getEmpleados();
+    const resCat = await getCategorias();
+    setEmpleados(resEmp.data || []);
+    setCategorias(resCat.data || []);
   };
-  cargarDatos();
-}, []);
-  {Array.isArray(niveles) && niveles.map((n) => (
-  <li key={n.id}>⭐ {n.nivel} = {n.puntos} pts</li>
-))}
 
-
-  const agregarEmpleado = async () => {
-    await axios.post("/api/empleados", nuevoEmpleado);
-    setNuevoEmpleado({ dni: "", nombre: "", sucursal: "" });
+  const handleAddEmpleado = async () => {
+    if (!nuevoEmpleado.dni || !nuevoEmpleado.nombre) return;
+    await addEmpleado(nuevoEmpleado);
+    setNuevoEmpleado({ dni: "", nombre: "", sucursal: "", area: "" });
     cargarDatos();
   };
 
-  const agregarPregunta = async () => {
-    await axios.post("/api/preguntas", nuevaPregunta);
-    setNuevaPregunta({ categoria: "", texto: "" });
+  const handleUpdateEmpleado = async () => {
+    await updateEmpleado(editarEmpleado);
+    setEditarEmpleado(null);
     cargarDatos();
   };
 
-  const agregarNivel = async () => {
-    await axios.post("/api/niveles", nuevoNivel);
-    setNuevoNivel({ nivel: "", puntos: "" });
+  const handleVerResultados = async (dni) => {
+    const res = await getResultadosPorEmpleado(dni);
+    setResultados({ ...resultados, [dni]: res.data });
+  };
+
+  const handleAddCategoria = async () => {
+    if (!nuevaCategoria) return;
+    await addCategoria({ nombre: nuevaCategoria });
+    setNuevaCategoria("");
     cargarDatos();
   };
 
   return (
-    <div className="space-y-10">
-      <h1 className="text-2xl font-bold">{t("Configuración del Sistema")}</h1>
+    <div className="space-y-12 max-w-6xl mx-auto font-inter text-sm">
+      <h1 className="text-2xl font-bold text-mia">{t("Configuración del Sistema")}</h1>
 
-      {/* Empleados */}
+      {/* === EMPLEADOS === */}
       <section>
-        <h2 className="text-xl font-semibold">{t("Empleados")}</h2>
-        <div className="flex gap-2 mb-2">
+        <h2 className="text-xl font-semibold mb-2">{t("Empleados")}</h2>
+
+        <div className="flex flex-wrap gap-2 mb-4">
           <input
             type="text"
             placeholder="DNI"
             value={nuevoEmpleado.dni}
             onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, dni: e.target.value })}
-            className="border p-1"
+            className="border p-1 rounded"
           />
           <input
             type="text"
             placeholder={t("Nombre")}
             value={nuevoEmpleado.nombre}
             onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, nombre: e.target.value })}
-            className="border p-1"
+            className="border p-1 rounded"
           />
           <input
             type="text"
             placeholder={t("Sucursal")}
             value={nuevoEmpleado.sucursal}
             onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, sucursal: e.target.value })}
-            className="border p-1"
+            className="border p-1 rounded"
           />
-          <button onClick={agregarEmpleado} className="bg-[#C10B67] text-white px-3 rounded">
+          <input
+            type="text"
+            placeholder={t("Área")}
+            value={nuevoEmpleado.area}
+            onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, area: e.target.value })}
+            className="border p-1 rounded"
+          />
+          <button onClick={handleAddEmpleado} className="bg-mia text-white px-3 rounded">
             {t("Agregar")}
           </button>
         </div>
-        <ul className="text-sm">
-          {empleados.map((e) => (
-            <li key={e.dni}>👤 {e.nombre} ({e.dni}) - {e.sucursal}</li>
+
+        <ul className="divide-y border rounded shadow-sm bg-white">
+          {empleados.map((emp) => (
+            <li key={emp.dni} className="p-2 flex justify-between items-start">
+              <div>
+                <strong>{emp.nombre}</strong> ({emp.dni})<br />
+                {emp.area} - {emp.sucursal}
+                {resultados[emp.dni] && (
+                  <div className="mt-1 text-gray-700">
+                    <strong>{t("Resultados")}:</strong>
+                    <ul className="list-disc list-inside text-xs">
+                      {resultados[emp.dni].map((r, idx) => (
+                        <li key={idx}>
+                          {r.fecha} - {r.categoria}: {r.nivel}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="space-x-2">
+                <button
+                  onClick={() => setEditarEmpleado(emp)}
+                  className="text-blue-600 hover:underline"
+                >
+                  {t("Editar")}
+                </button>
+                <button
+                  onClick={() => handleVerResultados(emp.dni)}
+                  className="text-green-600 hover:underline"
+                >
+                  {t("Ver resultados")}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {editarEmpleado && (
+          <div className="mt-4 p-4 border rounded bg-yellow-50">
+            <h3 className="font-semibold">{t("Editar Empleado")}</h3>
+            <input
+              type="text"
+              value={editarEmpleado.nombre}
+              onChange={(e) =>
+                setEditarEmpleado({ ...editarEmpleado, nombre: e.target.value })
+              }
+              className="border p-1 m-1 rounded"
+            />
+            <input
+              type="text"
+              value={editarEmpleado.sucursal}
+              onChange={(e) =>
+                setEditarEmpleado({ ...editarEmpleado, sucursal: e.target.value })
+              }
+              className="border p-1 m-1 rounded"
+            />
+            <input
+              type="text"
+              value={editarEmpleado.area}
+              onChange={(e) =>
+                setEditarEmpleado({ ...editarEmpleado, area: e.target.value })
+              }
+              className="border p-1 m-1 rounded"
+            />
+            <button
+              onClick={handleUpdateEmpleado}
+              className="bg-mia text-white px-3 py-1 rounded ml-2"
+            >
+              {t("Guardar cambios")}
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* === CATEGORÍAS === */}
+      <section>
+        <h2 className="text-xl font-semibold mb-2">{t("Categorías de Preguntas")}</h2>
+
+        <div className="flex gap-2 mb-3">
+          <input
+            type="text"
+            placeholder={t("Nueva categoría")}
+            value={nuevaCategoria}
+            onChange={(e) => setNuevaCategoria(e.target.value)}
+            className="border p-1 rounded"
+          />
+          <button onClick={handleAddCategoria} className="bg-mia text-white px-3 rounded">
+            {t("Agregar")}
+          </button>
+        </div>
+
+        <ul className="list-disc list-inside bg-white p-3 rounded shadow">
+          {categorias.map((c) => (
+            <li key={c.id}>{c.nombre}</li>
           ))}
         </ul>
       </section>
-
-      {/* Preguntas */}
+      {/* === PREGUNTAS === */}
       <section>
-        <h2 className="text-xl font-semibold">{t("Preguntas")}</h2>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            placeholder={t("Categoría")}
-            value={nuevaPregunta.categoria}
-            onChange={(e) => setNuevaPregunta({ ...nuevaPregunta, categoria: e.target.value })}
-            className="border p-1"
-          />
-          <input
-            type="text"
-            placeholder={t("Texto de la pregunta")}
-            value={nuevaPregunta.texto}
-            onChange={(e) => setNuevaPregunta({ ...nuevaPregunta, texto: e.target.value })}
-            className="border p-1 w-full"
-          />
-          <button onClick={agregarPregunta} className="bg-[#C10B67] text-white px-3 rounded">
-            {t("Agregar")}
-          </button>
-        </div>
-        <ul className="text-sm">
-          {preguntas.map((p) => (
-            <li key={p.id}>📌 <strong>{p.categoria}</strong>: {p.texto}</li>
-          ))}
-        </ul>
+        <h2 className="text-xl font-semibold mb-2">{t("Preguntas")}</h2>
+
+        <Preguntas categorias={categorias} />
       </section>
 
-      {/* Niveles */}
+      {/* === NIVELES === */}
       <section>
-        <h2 className="text-xl font-semibold">{t("Niveles de Calificación")}</h2>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            placeholder={t("Nivel")}
-            value={nuevoNivel.nivel}
-            onChange={(e) => setNuevoNivel({ ...nuevoNivel, nivel: e.target.value })}
-            className="border p-1"
-          />
-          <input
-            type="number"
-            placeholder={t("Puntos")}
-            value={nuevoNivel.puntos}
-            onChange={(e) => setNuevoNivel({ ...nuevoNivel, puntos: e.target.value })}
-            className="border p-1 w-24"
-          />
-          <button onClick={agregarNivel} className="bg-[#C10B67] text-white px-3 rounded">
-            {t("Agregar")}
-          </button>
-        </div>
-        <ul className="text-sm">
-          {niveles.map((n) => (
-            <li key={n.id}>⭐ {n.nivel} = {n.puntos} pts</li>
-          ))}
-        </ul>
+        <h2 className="text-xl font-semibold mb-2">{t("Niveles de Calificación")}</h2>
+
+        <Niveles />
+      </section>
+
+      {/* === ASIGNACIONES === */}
+      <section>
+        <h2 className="text-xl font-semibold mb-2">{t("Asignaciones")}</h2>
+
+        <Asignaciones empleados={empleados} />
       </section>
     </div>
   );
 };
 
 export default Configuracion;
+
