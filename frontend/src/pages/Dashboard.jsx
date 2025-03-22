@@ -78,4 +78,10 @@ const Dashboard = () => {
               </ul>
             )}
           </div>
-    
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
