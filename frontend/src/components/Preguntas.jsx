@@ -6,7 +6,7 @@ import {
 } from "../services/api";
 import { useTranslation } from "react-i18next";
 
-const Preguntas = ({ categorias }) => {
+const Preguntas = ({ categorias = [] }) => {
   const { t } = useTranslation();
   const [preguntas, setPreguntas] = useState([]);
   const [nuevaPregunta, setNuevaPregunta] = useState({ texto: "", categoria_id: "" });
@@ -18,7 +18,7 @@ const Preguntas = ({ categorias }) => {
 
   const cargarPreguntas = async () => {
     const res = await getPreguntas();
-    setPreguntas(res.data || []);
+    setPreguntas(Array.isArray(res.data) ? res.data : []);
   };
 
   const handleAdd = async () => {
@@ -54,11 +54,12 @@ const Preguntas = ({ categorias }) => {
           className="border p-1 rounded"
         >
           <option value="">{t("Seleccionar categoría")}</option>
-          {categorias.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.nombre}
-            </option>
-          ))}
+          {Array.isArray(categorias) &&
+            categorias.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.nombre}
+              </option>
+            ))}
         </select>
         <button onClick={handleAdd} className="bg-mia text-white px-3 rounded">
           {t("Agregar")}
@@ -66,20 +67,23 @@ const Preguntas = ({ categorias }) => {
       </div>
 
       <ul className="bg-white p-3 rounded shadow divide-y">
-        {preguntas.map((p) => (
-          <li key={p.id} className="py-2 flex justify-between items-start">
-            <div>
-              <strong>{p.texto}</strong><br />
-              <span className="text-xs text-gray-600">{t("Categoría")}: {p.categoria}</span>
-            </div>
-            <button
-              onClick={() => setEditando(p)}
-              className="text-blue-600 hover:underline"
-            >
-              {t("Editar")}
-            </button>
-          </li>
-        ))}
+        {Array.isArray(preguntas) &&
+          preguntas.map((p) => (
+            <li key={p.id} className="py-2 flex justify-between items-start">
+              <div>
+                <strong>{p.texto}</strong><br />
+                <span className="text-xs text-gray-600">
+                  {t("Categoría")}: {p.categoria}
+                </span>
+              </div>
+              <button
+                onClick={() => setEditando(p)}
+                className="text-blue-600 hover:underline"
+              >
+                {t("Editar")}
+              </button>
+            </li>
+          ))}
       </ul>
 
       {editando && (
@@ -100,11 +104,12 @@ const Preguntas = ({ categorias }) => {
             }
             className="border p-1 m-1 rounded"
           >
-            {categorias.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.nombre}
-              </option>
-            ))}
+            {Array.isArray(categorias) &&
+              categorias.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nombre}
+                </option>
+              ))}
           </select>
           <button
             onClick={handleUpdate}
