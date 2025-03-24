@@ -22,22 +22,33 @@ const Evaluacion = () => {
 
   useEffect(() => {
     const cargarDatos = async () => {
-      const empleados = await getEmpleados();
-const lista = Array.isArray(empleados.data) ? empleados.data : [];
-const filtrados = lista.filter((e) => asignados.data.includes(e.dni));
+      try {
+        const asignados = await getAsignaciones(usuario.dni);
+        const empleadosRes = await getEmpleados();
+        const preguntasRes = await getPreguntas();
+        const nivelesRes = await getNiveles();
 
-      setEvaluados(filtrados);
+        const empleadosList = Array.isArray(empleadosRes.data) ? empleadosRes.data : [];
+        const asignacionesList = Array.isArray(asignados.data) ? asignados.data : [];
 
-      const resPreg = await getPreguntas();
-      const resNiv = await getNiveles();
-      setPreguntas(resPreg.data || []);
-      setNiveles(resNiv.data || []);
+        const evaluables = empleadosList.filter((e) =>
+          asignacionesList.includes(e.dni)
+        );
+
+        setEvaluados(evaluables);
+        setPreguntas(Array.isArray(preguntasRes.data) ? preguntasRes.data : []);
+        setNiveles(Array.isArray(nivelesRes.data) ? nivelesRes.data : []);
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+      }
     };
+
     cargarDatos();
   }, [usuario.dni]);
 
   const handleEnviar = async () => {
     if (!evaluadoDni || Object.keys(respuestas).length === 0) return;
+
     const fecha = new Date().toISOString().split("T")[0];
 
     for (let pregunta of preguntas) {
@@ -70,35 +81,38 @@ const filtrados = lista.filter((e) => asignados.data.includes(e.dni));
           className="w-full border p-2 rounded mt-1"
         >
           <option value="">{t("Seleccione un colaborador")}</option>
-          {evaluados.map((e) => (
-            <option key={e.dni} value={e.dni}>
-              {e.nombre} ({e.dni})
-            </option>
-          ))}
+          {Array.isArray(evaluados) &&
+            evaluados.map((e) => (
+              <option key={e.dni} value={e.dni}>
+                {e.nombre} ({e.dni})
+              </option>
+            ))}
         </select>
       </div>
 
       <div className="space-y-4">
-        {preguntas.map((p) => (
-          <div key={p.id} className="bg-white rounded shadow p-4">
-            <p className="font-medium">{p.texto}</p>
-            <div className="flex flex-wrap gap-4 mt-2">
-              {niveles.map((n) => (
-                <label key={n.id} className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    name={`pregunta-${p.id}`}
-                    checked={respuestas[p.id] === n.nivel}
-                    onChange={() =>
-                      setRespuestas({ ...respuestas, [p.id]: n.nivel })
-                    }
-                  />
-                  {n.nivel}
-                </label>
-              ))}
+        {Array.isArray(preguntas) &&
+          preguntas.map((p) => (
+            <div key={p.id} className="bg-white rounded shadow p-4">
+              <p className="font-medium">{p.texto}</p>
+              <div className="flex flex-wrap gap-4 mt-2">
+                {Array.isArray(niveles) &&
+                  niveles.map((n) => (
+                    <label key={n.id} className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name={`pregunta-${p.id}`}
+                        checked={respuestas[p.id] === n.nivel}
+                        onChange={() =>
+                          setRespuestas({ ...respuestas, [p.id]: n.nivel })
+                        }
+                      />
+                      {n.nivel}
+                    </label>
+                  ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       <textarea
