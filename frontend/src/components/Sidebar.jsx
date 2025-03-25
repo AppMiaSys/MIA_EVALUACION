@@ -15,6 +15,9 @@ const Sidebar = () => {
         <Link to="/niveles" className="hover:text-mia">Niveles</Link>
         <Link to="/asignaciones" className="hover:text-mia">Asignaciones</Link>
         <Link to="/evaluar" className="hover:text-mia">Realizar Evaluación</Link>
+        <Link to="/mis-evaluaciones" className="hover:text-mia">Mis Evaluaciones</Link>
+        <Link to="/perfil" className="hover:text-mia">Mi Perfil</Link>
+        <Link to="/niveles-acceso" className="hover:text-mia">Niveles de Acceso</Link>
         <Link to="/ayuda" className="hover:text-mia">Ayuda</Link>
       </nav>
     </aside>
