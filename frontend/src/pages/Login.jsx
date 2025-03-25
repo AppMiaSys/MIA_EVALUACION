@@ -1,3 +1,5 @@
+// ✅ src/pages/Login.jsx
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -11,11 +13,18 @@ const Login = () => {
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    if (dni === "admin" && password === "admin123") {
-      localStorage.setItem("usuario", JSON.stringify({ dni: "admin", nombre: "Administrador" }));
-      navigate("/dashboard");
-    } else {
-      setError(t("DNI o contraseña incorrectos"));
+    try {
+      const res = await fetch("https://mia-backend.onrender.com/api/empleados");
+      const data = await res.json();
+      const usuario = data.find((u) => u.dni === dni && u.contrasena === password);
+      if (usuario) {
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        navigate("/dashboard");
+      } else {
+        setError(t("DNI o contraseña incorrectos"));
+      }
+    } catch {
+      setError(t("Error al iniciar sesión"));
     }
   };
 
@@ -56,3 +65,4 @@ const Login = () => {
 };
 
 export default Login;
+
