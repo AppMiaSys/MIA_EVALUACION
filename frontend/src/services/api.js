@@ -1,4 +1,4 @@
-// ✅ src/services/api.js actualizado con getCategorias y addCategoria
+// ✅ src/services/api.js actualizado con funciones de preguntas
 
 import axios from "axios";
 
@@ -27,3 +27,8 @@ export const obtenerEvaluadosPorEvaluacion = (evaluacionId) =>
 // Categorías
 export const getCategorias = () => axios.get(`${API}/categorias`);
 export const addCategoria = (data) => axios.post(`${API}/categorias`, data);
+
+// Preguntas
+export const getPreguntas = () => axios.get(`${API}/preguntas`);
+export const addPregunta = (data) => axios.post(`${API}/preguntas`, data);
+export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
