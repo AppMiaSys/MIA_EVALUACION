@@ -1,136 +1,106 @@
-import React, { useEffect, useState } from "react";
+// ✅ src/pages/Evaluacion.jsx
+
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
+  getAsignaciones,
+  getCategorias,
   getPreguntas,
   getNiveles,
-  getAsignaciones,
-  getEmpleados,
   enviarEvaluacion
 } from "../services/api";
-import { useTranslation } from "react-i18next";
 
 const Evaluacion = () => {
   const { t } = useTranslation();
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-
   const [evaluados, setEvaluados] = useState([]);
+  const [seleccionado, setSeleccionado] = useState("");
+  const [categorias, setCategorias] = useState([]);
   const [preguntas, setPreguntas] = useState([]);
   const [niveles, setNiveles] = useState([]);
-  const [evaluadoDni, setEvaluadoDni] = useState("");
   const [respuestas, setRespuestas] = useState({});
-  const [comentario, setComentario] = useState("");
-  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
     const cargarDatos = async () => {
-      try {
-        const asignados = await getAsignaciones(usuario.dni);
-        const empleadosRes = await getEmpleados();
-        const preguntasRes = await getPreguntas();
-        const nivelesRes = await getNiveles();
-
-        const empleadosList = Array.isArray(empleadosRes.data) ? empleadosRes.data : [];
-        const asignacionesList = Array.isArray(asignados.data) ? asignados.data : [];
-
-        const evaluables = empleadosList.filter((e) =>
-          asignacionesList.includes(e.dni)
-        );
-
-        setEvaluados(evaluables);
-        setPreguntas(Array.isArray(preguntasRes.data) ? preguntasRes.data : []);
-        setNiveles(Array.isArray(nivelesRes.data) ? nivelesRes.data : []);
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-      }
+      const [evals, cats, pregs, nivs] = await Promise.all([
+        getAsignaciones(usuario.dni),
+        getCategorias(),
+        getPreguntas(),
+        getNiveles()
+      ]);
+      setEvaluados(evals.data);
+      setCategorias(cats.data);
+      setPreguntas(pregs.data);
+      setNiveles(nivs.data);
     };
-
     cargarDatos();
   }, [usuario.dni]);
 
+  const handleSelectNivel = (preguntaId, nivel) => {
+    setRespuestas({ ...respuestas, [preguntaId]: nivel });
+  };
+
   const handleEnviar = async () => {
-    if (!evaluadoDni || Object.keys(respuestas).length === 0) return;
-
-    const fecha = new Date().toISOString().split("T")[0];
-
-    for (let pregunta of preguntas) {
-      await enviarEvaluacion({
-        evaluador_dni: usuario.dni,
-        evaluado_dni: evaluadoDni,
-        categoria: pregunta.categoria,
-        nivel: respuestas[pregunta.id],
-        comentario,
-        fecha
-      });
+    for (const pregunta of preguntas) {
+      if (pregunta.categoria && respuestas[pregunta.id]) {
+        await enviarEvaluacion({
+          evaluador_dni: usuario.dni,
+          evaluado_dni: seleccionado,
+          categoria: pregunta.categoria,
+          nivel: respuestas[pregunta.id],
+          comentario: "",
+          fecha: new Date().toISOString().split("T")[0],
+        });
+      }
     }
-
-    setEvaluadoDni("");
+    alert(t("Evaluación registrada correctamente"));
+    setSeleccionado("");
     setRespuestas({});
-    setComentario("");
-    setMensaje(t("¡Evaluación enviada exitosamente!"));
-    setTimeout(() => setMensaje(""), 3000);
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 p-4 font-inter">
-      <h1 className="text-2xl font-bold text-mia">{t("Realizar Evaluación")}</h1>
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl font-bold text-mia mb-4">{t("Realizar Evaluación")}</h1>
 
-      <div>
-        <label className="font-semibold">{t("Colaborador a evaluar")}:</label>
-        <select
-          value={evaluadoDni}
-          onChange={(e) => setEvaluadoDni(e.target.value)}
-          className="w-full border p-2 rounded mt-1"
-        >
-          <option value="">{t("Seleccione un colaborador")}</option>
-          {Array.isArray(evaluados) &&
-            evaluados.map((e) => (
-              <option key={e.dni} value={e.dni}>
-                {e.nombre} ({e.dni})
-              </option>
-            ))}
-        </select>
-      </div>
+      <select
+        value={seleccionado}
+        onChange={(e) => setSeleccionado(e.target.value)}
+        className="border p-2 rounded mb-4 w-full"
+      >
+        <option value="">{t("Selecciona a quién vas a evaluar")}</option>
+        {evaluados.map((dni) => (
+          <option key={dni} value={dni}>{dni}</option>
+        ))}
+      </select>
 
-      <div className="space-y-4">
-        {Array.isArray(preguntas) &&
-          preguntas.map((p) => (
-            <div key={p.id} className="bg-white rounded shadow p-4">
-              <p className="font-medium">{p.texto}</p>
-              <div className="flex flex-wrap gap-4 mt-2">
-                {Array.isArray(niveles) &&
-                  niveles.map((n) => (
-                    <label key={n.id} className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        name={`pregunta-${p.id}`}
-                        checked={respuestas[p.id] === n.nivel}
-                        onChange={() =>
-                          setRespuestas({ ...respuestas, [p.id]: n.nivel })
-                        }
-                      />
-                      {n.nivel}
-                    </label>
-                  ))}
-              </div>
+      {categorias.map((cat) => (
+        <div key={cat.id} className="mb-6">
+          <h2 className="text-lg font-semibold text-mia mb-2">{cat.nombre}</h2>
+          {preguntas.filter((p) => p.categoria === cat.nombre).map((p) => (
+            <div key={p.id} className="mb-2">
+              <label className="block font-medium mb-1">{p.texto}</label>
+              <select
+                value={respuestas[p.id] || ""}
+                onChange={(e) => handleSelectNivel(p.id, e.target.value)}
+                className="border p-1 rounded w-full"
+              >
+                <option value="">{t("Selecciona nivel")}</option>
+                {niveles.map((n) => (
+                  <option key={n.id} value={n.nivel}>{n.nivel}</option>
+                ))}
+              </select>
             </div>
           ))}
-      </div>
-
-      <textarea
-        value={comentario}
-        onChange={(e) => setComentario(e.target.value)}
-        placeholder={t("Comentario final (opcional)")}
-        className="w-full border p-2 rounded"
-        rows={3}
-      />
+        </div>
+      ))}
 
       <button
         onClick={handleEnviar}
-        className="bg-mia text-white px-6 py-2 rounded hover:opacity-90"
+        disabled={!seleccionado || Object.keys(respuestas).length === 0}
+        className="bg-mia text-white px-6 py-2 rounded"
       >
-        {t("Enviar Evaluación")}
+        {t("Enviar evaluación")}
       </button>
-
-      {mensaje && <p className="text-green-600 font-semibold mt-2">{mensaje}</p>}
     </div>
   );
 };
