@@ -1,4 +1,4 @@
-// ✅ src/pages/NivelesAcceso.jsx con modal y lógica mejorada
+// ✅ src/pages/NivelesAcceso.jsx con modal y lógica mejorada + manejo de errores
 
 import React, { useEffect, useState } from "react";
 import { getNivelesAcceso, addNivelAcceso, updateNivelAcceso } from "../services/api";
@@ -15,14 +15,19 @@ const NivelesAcceso = () => {
   const [nuevo, setNuevo] = useState({ nombre: "", permisos: [] });
   const [editando, setEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     cargar();
   }, []);
 
   const cargar = async () => {
-    const res = await getNivelesAcceso();
-    setNiveles(res.data);
+    try {
+      const res = await getNivelesAcceso();
+      setNiveles(res.data);
+    } catch (err) {
+      console.error("Error al cargar niveles:", err);
+    }
   };
 
   const togglePermiso = (permiso, enEdicion = false) => {
@@ -35,11 +40,20 @@ const NivelesAcceso = () => {
   };
 
   const handleAdd = async () => {
-    if (!nuevo.nombre) return;
-    await addNivelAcceso({ ...nuevo, permisos: nuevo.permisos.join(",") });
-    setNuevo({ nombre: "", permisos: [] });
-    setMostrarFormulario(false);
-    await cargar();
+    if (!nuevo.nombre.trim()) {
+      setError(t("El nombre del nivel es requerido"));
+      return;
+    }
+    try {
+      await addNivelAcceso({ ...nuevo, permisos: nuevo.permisos.join(",") });
+      setNuevo({ nombre: "", permisos: [] });
+      setMostrarFormulario(false);
+      setError("");
+      await cargar();
+    } catch (err) {
+      console.error("Error al agregar nivel:", err);
+      setError(t("Ocurrió un error al guardar el nivel."));
+    }
   };
 
   const handleUpdate = async () => {
@@ -54,7 +68,11 @@ const NivelesAcceso = () => {
         <h1 className="text-2xl font-bold text-mia">{t("Niveles de Acceso")}</h1>
         {niveles.length > 0 && (
           <button
-            onClick={() => setMostrarFormulario(true)}
+            onClick={() => {
+              setMostrarFormulario(true);
+              setNuevo({ nombre: "", permisos: [] });
+              setError("");
+            }}
             className="bg-mia text-white px-4 py-1 rounded"
           >
             {t("Nuevo")}
@@ -86,6 +104,7 @@ const NivelesAcceso = () => {
           <button onClick={handleAdd} className="bg-mia text-white px-4 py-2 rounded">
             {t("Agregar Nivel")}
           </button>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
         </div>
       ) : (
         <ul className="divide-y rounded border bg-white">
@@ -157,6 +176,7 @@ const NivelesAcceso = () => {
                 </label>
               ))}
             </div>
+            {error && <p className="text-red-600 text-sm">{error}</p>}
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setMostrarFormulario(false)}
