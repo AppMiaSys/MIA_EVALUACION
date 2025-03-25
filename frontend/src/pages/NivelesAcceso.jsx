@@ -1,13 +1,11 @@
+// ✅ src/pages/NivelesAcceso.jsx con modal y lógica mejorada
+
 import React, { useEffect, useState } from "react";
-import {
-  getNivelesAcceso,
-  addNivelAcceso,
-  updateNivelAcceso
-} from "../services/api";
+import { getNivelesAcceso, addNivelAcceso, updateNivelAcceso } from "../services/api";
 import { useTranslation } from "react-i18next";
 
 const opciones = [
-  "Dashboard", "Empleados", "Categorías", "Preguntas", "Niveles",
+  "Dashboard", "Usuarios", "Categorías", "Preguntas", "Niveles",
   "Asignaciones", "Evaluar", "Mis Evaluaciones", "Perfil", "Niveles de Acceso", "Ayuda"
 ];
 
@@ -16,6 +14,7 @@ const NivelesAcceso = () => {
   const [niveles, setNiveles] = useState([]);
   const [nuevo, setNuevo] = useState({ nombre: "", permisos: [] });
   const [editando, setEditando] = useState(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
     cargar();
@@ -23,7 +22,7 @@ const NivelesAcceso = () => {
 
   const cargar = async () => {
     const res = await getNivelesAcceso();
-    setNiveles(res.data || []);
+    setNiveles(res.data);
   };
 
   const togglePermiso = (permiso, enEdicion = false) => {
@@ -39,7 +38,8 @@ const NivelesAcceso = () => {
     if (!nuevo.nombre) return;
     await addNivelAcceso({ ...nuevo, permisos: nuevo.permisos.join(",") });
     setNuevo({ nombre: "", permisos: [] });
-    await cargar(); // ✅ Actualiza la lista al agregar
+    setMostrarFormulario(false);
+    await cargar();
   };
 
   const handleUpdate = async () => {
@@ -49,53 +49,60 @@ const NivelesAcceso = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-mia mb-4">{t("Niveles de Acceso")}</h1>
-
-      <div className="p-4 border rounded bg-white space-y-4">
-        <input
-          type="text"
-          placeholder={t("Nombre del nivel")}
-          value={nuevo.nombre}
-          onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
-          className="border p-2 rounded w-full"
-        />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {opciones.map((op) => (
-            <label key={op} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={nuevo.permisos.includes(op)}
-                onChange={() => togglePermiso(op)}
-              />
-              {op}
-            </label>
-          ))}
-        </div>
-        <button
-          onClick={handleAdd}
-          className="bg-mia text-white px-4 py-2 rounded"
-        >
-          {t("Agregar Nivel")}
-        </button>
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-mia">{t("Niveles de Acceso")}</h1>
+        {niveles.length > 0 && (
+          <button
+            onClick={() => setMostrarFormulario(true)}
+            className="bg-mia text-white px-4 py-1 rounded"
+          >
+            {t("Nuevo")}
+          </button>
+        )}
       </div>
 
-      <ul className="divide-y rounded border bg-white">
-        {niveles.map((n) => (
-          <li key={n.id} className="p-4">
-            <strong>{n.nombre}</strong>
-            <div className="text-sm text-gray-600">{n.permisos}</div>
-            <button
-              onClick={() =>
-                setEditando({ ...n, permisos: n.permisos ? n.permisos.split(",") : [] })
-              }
-              className="text-blue-600 text-sm hover:underline mt-1"
-            >
-              {t("Editar")}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {niveles.length === 0 ? (
+        <div className="p-4 border rounded bg-white space-y-4">
+          <input
+            type="text"
+            placeholder={t("Nombre del nivel")}
+            value={nuevo.nombre}
+            onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
+            className="border p-2 rounded w-full"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            {opciones.map((op) => (
+              <label key={op} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={nuevo.permisos.includes(op)}
+                  onChange={() => togglePermiso(op)}
+                />
+                {op}
+              </label>
+            ))}
+          </div>
+          <button onClick={handleAdd} className="bg-mia text-white px-4 py-2 rounded">
+            {t("Agregar Nivel")}
+          </button>
+        </div>
+      ) : (
+        <ul className="divide-y rounded border bg-white">
+          {niveles.map((n) => (
+            <li key={n.id} className="p-4">
+              <strong>{n.nombre}</strong>
+              <div className="text-sm text-gray-600">{n.permisos}</div>
+              <button
+                onClick={() => setEditando({ ...n, permisos: n.permisos ? n.permisos.split(",") : [] })}
+                className="text-blue-600 text-sm hover:underline mt-1"
+              >
+                {t("Editar")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {editando && (
         <div className="mt-6 p-4 border bg-yellow-50 rounded space-y-4">
@@ -106,7 +113,7 @@ const NivelesAcceso = () => {
             onChange={(e) => setEditando({ ...editando, nombre: e.target.value })}
             className="border p-2 rounded w-full"
           />
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {opciones.map((op) => (
               <label key={op} className="flex items-center gap-2">
                 <input
@@ -124,6 +131,47 @@ const NivelesAcceso = () => {
           >
             {t("Guardar cambios")}
           </button>
+        </div>
+      )}
+
+      {mostrarFormulario && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg space-y-4">
+            <h2 className="text-lg font-semibold">{t("Nuevo Nivel de Acceso")}</h2>
+            <input
+              type="text"
+              placeholder={t("Nombre del nivel")}
+              value={nuevo.nombre}
+              onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
+              className="border p-2 rounded w-full"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              {opciones.map((op) => (
+                <label key={op} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={nuevo.permisos.includes(op)}
+                    onChange={() => togglePermiso(op)}
+                  />
+                  {op}
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setMostrarFormulario(false)}
+                className="text-gray-600 hover:underline"
+              >
+                {t("Cancelar")}
+              </button>
+              <button
+                onClick={handleAdd}
+                className="bg-mia text-white px-4 py-2 rounded"
+              >
+                {t("Agregar Nivel")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
