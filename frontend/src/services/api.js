@@ -44,4 +44,6 @@ export const getNivelesByEvaluacion = (evaluacionId) => axios.get(`${API}/evalua
 // Evaluaciones
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
 export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
+export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
+
 
