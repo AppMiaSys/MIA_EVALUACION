@@ -19,6 +19,17 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 # -----------------------------
+# EMPLEADOS
+# -----------------------------
+@app.route("/api/empleados", methods=["GET"])
+def get_empleados():
+    rows = query_db("SELECT dni, nombre, sucursal, area, contrasena, nivel_acceso FROM empleados")
+    return jsonify([{
+        "dni": r[0], "nombre": r[1], "sucursal": r[2], "area": r[3],
+        "contrasena": r[4], "nivel_acceso": r[5]
+    } for r in rows])
+
+# -----------------------------
 # NIVELES DE ACCESO
 # -----------------------------
 @app.route("/api/niveles-acceso", methods=["GET"])
@@ -58,4 +69,3 @@ def post_asignaciones():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
