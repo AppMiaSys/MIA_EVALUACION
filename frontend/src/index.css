@@ -1,3 +1,36 @@
+/* ✅ src/index.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Estilos personalizados */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.text-mia {
+  color: #C10B67;
+}
+
+.bg-mia {
+  background-color: #C10B67;
+}
+
+.bg-mia-yellow {
+  background-color: #FCE200;
+}
+
+.border-mia {
+  border-color: #C10B67;
+}
+
+.hover\:text-mia:hover {
+  color: #C10B67;
+}
+
+.hover\:bg-mia:hover {
+  background-color: #C10B67;
+}
