@@ -83,5 +83,21 @@ def post_asignaciones():
         query_db("INSERT INTO asignaciones (evaluador_dni, evaluado_dni) VALUES (?, ?)", (evaluador, ev))
     return jsonify({"status": "ok"})
 
+# -----------------------------
+# EVALUACION USUARIOS
+# -----------------------------
+@app.route("/api/evaluaciones/<int:evaluacion_id>/evaluados", methods=["POST"])
+def set_evaluados_por_evaluacion(evaluacion_id):
+    dnis = request.json.get("empleados", [])
+    query_db("DELETE FROM evaluacion_usuarios WHERE evaluacion_id = ?", (evaluacion_id,))
+    for dni in dnis:
+        query_db("INSERT INTO evaluacion_usuarios (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/evaluaciones/<int:evaluacion_id>/evaluados", methods=["GET"])
+def get_evaluados_por_evaluacion(evaluacion_id):
+    rows = query_db("SELECT empleado_dni FROM evaluacion_usuarios WHERE evaluacion_id = ?", (evaluacion_id,))
+    return jsonify([r[0] for r in rows])
+
 if __name__ == "__main__":
     app.run(debug=True)
