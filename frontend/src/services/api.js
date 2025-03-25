@@ -33,6 +33,7 @@ export const getCategoriasByEvaluacion = (evaluacionId) => axios.get(`${API}/eva
 export const getPreguntas = () => axios.get(`${API}/preguntas`);
 export const addPregunta = (data) => axios.post(`${API}/preguntas`, data);
 export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
+export const getPreguntasByEvaluacion = (evaluacionId) => axios.get(`${API}/evaluaciones/${evaluacionId}/preguntas`);
 
 // Niveles de calificación
 export const getNiveles = () => axios.get(`${API}/niveles`);
@@ -42,5 +43,3 @@ export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
 // Evaluaciones
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
 export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
-
-
