@@ -1,6 +1,6 @@
-// ✅ src/pages/Empleados.jsx
+// ✅ src/pages/Empleados.jsx — Actualizado
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   getEmpleados,
   addEmpleado,
@@ -12,9 +12,11 @@ import { useTranslation } from "react-i18next";
 const Empleados = () => {
   const { t } = useTranslation();
   const [empleados, setEmpleados] = useState([]);
-  const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "" });
+  const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "" });
   const [editando, setEditando] = useState(null);
   const [resultados, setResultados] = useState({});
+
+  const refs = useRef([]);
 
   useEffect(() => {
     cargarEmpleados();
@@ -26,10 +28,11 @@ const Empleados = () => {
   };
 
   const handleAdd = async () => {
-    if (!nuevo.dni || !nuevo.nombre) return;
+    if (!nuevo.dni || !nuevo.nombre || !nuevo.contrasena) return;
     await addEmpleado(nuevo);
-    setNuevo({ dni: "", nombre: "", sucursal: "", area: "" });
+    setNuevo({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "" });
     cargarEmpleados();
+    refs.current[0]?.focus();
   };
 
   const handleUpdate = async () => {
@@ -43,35 +46,34 @@ const Empleados = () => {
     setResultados({ ...resultados, [dni]: res.data });
   };
 
+  const handleKeyPress = (e, index, total) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (index + 1 < total) {
+        refs.current[index + 1]?.focus();
+      } else {
+        handleAdd();
+      }
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
       <h1 className="text-2xl font-bold text-mia">{t("Empleados")}</h1>
 
       <div className="flex flex-wrap gap-2">
-        <input
-          placeholder="DNI"
-          value={nuevo.dni}
-          onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })}
-          className="border p-1 rounded"
-        />
-        <input
-          placeholder={t("Nombre")}
-          value={nuevo.nombre}
-          onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
-          className="border p-1 rounded"
-        />
-        <input
-          placeholder={t("Sucursal")}
-          value={nuevo.sucursal}
-          onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })}
-          className="border p-1 rounded"
-        />
-        <input
-          placeholder={t("Área")}
-          value={nuevo.area}
-          onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })}
-          className="border p-1 rounded"
-        />
+        {["dni", "nombre", "sucursal", "area", "contrasena"].map((field, i) => (
+          <input
+            key={field}
+            placeholder={t(field.charAt(0).toUpperCase() + field.slice(1))}
+            type={field === "contrasena" ? "password" : "text"}
+            value={nuevo[field]}
+            ref={(el) => (refs.current[i] = el)}
+            onChange={(e) => setNuevo({ ...nuevo, [field]: e.target.value })}
+            onKeyDown={(e) => handleKeyPress(e, i, 5)}
+            className="border p-1 rounded w-full md:w-auto"
+          />
+        ))}
         <button onClick={handleAdd} className="bg-mia text-white px-4 py-1 rounded">
           {t("Agregar")}
         </button>
