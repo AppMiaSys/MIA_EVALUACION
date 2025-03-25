@@ -43,3 +43,23 @@ export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
 export const getCategoriasByEvaluacion = (id) => axios.get(`${API}/categorias/${id}`);
 export const getPreguntasByEvaluacion = (id) => axios.get(`${API}/preguntas/${id}`);
 export const getNivelesByEvaluacion = (id) => axios.get(`${API}/niveles/${id}`);
+
+// ✅ src/services/api.js actualizado
+
+import axios from "axios";
+
+const API = "https://mia-backend.onrender.com/api";
+
+export const getEmpleados = () => axios.get(`${API}/empleados`);
+export const addEmpleado = (data) => axios.post(`${API}/empleados`, data);
+export const updateEmpleado = (data) => axios.put(`${API}/empleados`, data);
+
+export const getNivelesAcceso = () => axios.get(`${API}/niveles-acceso`);
+export const addNivelAcceso = (data) => axios.post(`${API}/niveles-acceso`, data);
+export const updateNivelAcceso = (data) => axios.put(`${API}/niveles-acceso`, data);
+
+export const getAsignaciones = (dni) => axios.get(`${API}/asignaciones/${dni}`);
+export const guardarAsignaciones = (data) => axios.post(`${API}/asignaciones`, data);
+
+// Evaluaciones (futuro si se desea guardar evaluados seleccionados)
+// export const guardarEvaluadosPorEvaluacion = (idEvaluacion, data) => axios.post(`${API}/evaluaciones/${idEvaluacion}/evaluados`, data);
