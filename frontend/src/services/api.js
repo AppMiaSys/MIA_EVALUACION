@@ -1,4 +1,4 @@
-// ✅ src/services/api.js actualizado con funciones de preguntas
+// ✅ src/services/api.js actualizado con funciones de preguntas y niveles
 
 import axios from "axios";
 
@@ -32,3 +32,8 @@ export const addCategoria = (data) => axios.post(`${API}/categorias`, data);
 export const getPreguntas = () => axios.get(`${API}/preguntas`);
 export const addPregunta = (data) => axios.post(`${API}/preguntas`, data);
 export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
+
+// Niveles de calificación
+export const getNiveles = () => axios.get(`${API}/niveles`);
+export const addNivel = (data) => axios.post(`${API}/niveles`, data);
+export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
