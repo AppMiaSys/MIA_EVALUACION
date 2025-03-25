@@ -1,14 +1,38 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
+// ✅ src/App.jsx
 
-export default function App() {
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import Dashboard from "./pages/Dashboard";
+import Empleados from "./pages/Empleados";
+import Categorias from "./pages/Categorias";
+import Preguntas from "./pages/Preguntas";
+import Niveles from "./pages/Niveles";
+import Asignaciones from "./pages/Asignaciones";
+import Evaluacion from "./pages/Evaluacion";
+import Ayuda from "./pages/Ayuda";
+
+const App = () => {
   return (
-    <div className="flex min-h-screen bg-gray-100 text-gray-900 font-inter">
-      <Sidebar />
-      <main className="flex-1 p-4 overflow-y-auto">
-        <Outlet />
-      </main>
-    </div>
+    <Router>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 p-4">
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/empleados" element={<Empleados />} />
+            <Route path="/categorias" element={<Categorias />} />
+            <Route path="/preguntas" element={<Preguntas />} />
+            <Route path="/niveles" element={<Niveles />} />
+            <Route path="/asignaciones" element={<Asignaciones />} />
+            <Route path="/evaluar" element={<Evaluacion />} />
+            <Route path="/ayuda" element={<Ayuda />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
-}
+};
+
+export default App;
