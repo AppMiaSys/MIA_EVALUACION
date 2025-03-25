@@ -29,19 +29,23 @@ def get_empleados():
         "contrasena": r[4], "nivel_acceso": r[5]
     } for r in rows])
 
-# -----------------------------
-# NIVELES DE ACCESO
-# -----------------------------
-@app.route("/api/niveles-acceso", methods=["GET"])
-def get_niveles_acceso():
-    rows = query_db("SELECT id, nombre, permisos FROM niveles_acceso")
-    return jsonify([{"id": r[0], "nombre": r[1], "permisos": r[2]} for r in rows])
-
-@app.route("/api/niveles-acceso", methods=["POST"])
-def add_nivel_acceso():
+@app.route("/api/empleados", methods=["POST"])
+def add_empleado():
     d = request.json
-    query_db("INSERT INTO niveles_acceso (nombre, permisos) VALUES (?, ?)", (d["nombre"], d["permisos"]))
+    query_db(
+        "INSERT INTO empleados (dni, nombre, sucursal, area, contrasena, nivel_acceso) VALUES (?, ?, ?, ?, ?, ?)",
+        (d["dni"], d["nombre"], d.get("sucursal", ""), d.get("area", ""), d["contrasena"], d.get("nivel_acceso", 1))
+    )
     return jsonify({"status": "ok"})
+
+@app.route("/api/empleados", methods=["PUT"])
+def update_empleado():
+    d = request.json
+    query_db(
+        "UPDATE empleados SET nombre=?, sucursal=?, area=?, contrasena=?, nivel_acceso=? WHERE dni=?",
+        (d["nombre"], d["sucursal"], d["area"], d["contrasena"], d["nivel_acceso"], d["dni"])
+    )
+    return jsonify({"status": "updated"})
 
 @app.route("/api/niveles-acceso", methods=["PUT"])
 def update_nivel_acceso():
