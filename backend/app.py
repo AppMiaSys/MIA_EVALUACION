@@ -1,4 +1,4 @@
-# ✅ backend/app.py — extendido con niveles de acceso
+# ✅ backend/app.py completo y actualizado
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -21,28 +21,35 @@ def query_db(query, args=(), one=False):
     con.close()
     return (rv[0] if rv else None) if one else rv
 
-# --- Empleados / Evaluación / Configuración omitidos para brevedad ---
+# ✅ Empleados
 
-# 📌 Niveles de Acceso
+@app.route("/api/empleados", methods=["GET"])
+def get_empleados():
+    rows = query_db("SELECT dni, nombre, sucursal, area, contrasena, nivel_acceso FROM empleados")
+    return jsonify([{
+        "dni": r[0],
+        "nombre": r[1],
+        "sucursal": r[2],
+        "area": r[3],
+        "contrasena": r[4],
+        "nivel_acceso": r[5]
+    } for r in rows])
 
-@app.route("/api/niveles-acceso", methods=["GET"])
-def get_niveles_acceso():
-    rows = query_db("SELECT id, nombre, permisos FROM niveles_acceso")
-    return jsonify([{"id": r[0], "nombre": r[1], "permisos": r[2]} for r in rows])
-
-@app.route("/api/niveles-acceso", methods=["POST"])
-def add_nivel_acceso():
+@app.route("/api/empleados", methods=["POST"])
+def add_empleado():
     data = request.json
-    query_db("INSERT INTO niveles_acceso (nombre, permisos) VALUES (?, ?)",
-             (data["nombre"], data["permisos"]))
+    query_db("INSERT INTO empleados (dni, nombre, sucursal, area, contrasena, nivel_acceso) VALUES (?, ?, ?, ?, ?, ?)",
+             (data["dni"], data["nombre"], data.get("sucursal", ""), data.get("area", ""), data.get("contrasena", ""), data.get("nivel_acceso", 1)))
     return jsonify({"status": "ok"})
 
-@app.route("/api/niveles-acceso", methods=["PUT"])
-def update_nivel_acceso():
+@app.route("/api/empleados", methods=["PUT"])
+def update_empleado():
     data = request.json
-    query_db("UPDATE niveles_acceso SET nombre = ?, permisos = ? WHERE id = ?",
-             (data["nombre"], data["permisos"], data["id"]))
+    query_db("UPDATE empleados SET nombre = ?, sucursal = ?, area = ?, contrasena = ?, nivel_acceso = ? WHERE dni = ?",
+             (data["nombre"], data["sucursal"], data["area"], data["contrasena"], data.get("nivel_acceso", 1), data["dni"]))
     return jsonify({"status": "updated"})
+
+# Puedes agregar aquí más rutas (preguntas, niveles, asignaciones, evaluación, etc.) según lo que ya tenías
 
 if __name__ == "__main__":
     app.run(debug=True)
