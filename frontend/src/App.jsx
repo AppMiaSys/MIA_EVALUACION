@@ -1,4 +1,4 @@
-// ✅ src/App.jsx
+// ✅ src/App.jsx actualizado con protección de rutas
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -14,29 +14,39 @@ import MisEvaluaciones from "./pages/MisEvaluaciones";
 import Perfil from "./pages/Perfil";
 import NivelesAcceso from "./pages/NivelesAcceso";
 import Ayuda from "./pages/Ayuda";
+import Login from "./pages/Login";
+
+const isAuthenticated = !!localStorage.getItem("usuario");
 
 const App = () => {
   return (
     <Router>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-1 p-4">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/empleados" element={<Empleados />} />
-            <Route path="/categorias" element={<Categorias />} />
-            <Route path="/preguntas" element={<Preguntas />} />
-            <Route path="/niveles" element={<Niveles />} />
-            <Route path="/asignaciones" element={<Asignaciones />} />
-            <Route path="/evaluar" element={<Evaluacion />} />
-            <Route path="/mis-evaluaciones" element={<MisEvaluaciones />} />
-            <Route path="/perfil" element={<Perfil />} />
-            <Route path="/niveles-acceso" element={<NivelesAcceso />} />
-            <Route path="/ayuda" element={<Ayuda />} />
-          </Routes>
-        </main>
-      </div>
+      {isAuthenticated ? (
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <main className="flex-1 p-4">
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/empleados" element={<Empleados />} />
+              <Route path="/categorias" element={<Categorias />} />
+              <Route path="/preguntas" element={<Preguntas />} />
+              <Route path="/niveles" element={<Niveles />} />
+              <Route path="/asignaciones" element={<Asignaciones />} />
+              <Route path="/evaluar" element={<Evaluacion />} />
+              <Route path="/mis-evaluaciones" element={<MisEvaluaciones />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/niveles-acceso" element={<NivelesAcceso />} />
+              <Route path="/ayuda" element={<Ayuda />} />
+              <Route path="*" element={<Navigate to="/dashboard" />} />
+            </Routes>
+          </main>
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
     </Router>
   );
 };
