@@ -16,10 +16,12 @@ const Login = () => {
     try {
       const res = await fetch("https://mia-backend.onrender.com/api/empleados");
       const data = await res.json();
-      const usuario = data.find((u) => u.dni === dni && u.contrasena === password);
+      const usuario = data.find(
+        (u) => u.dni === dni && u.contrasena === password
+      );
       if (usuario) {
         localStorage.setItem("usuario", JSON.stringify(usuario));
-        navigate("/dashboard");
+        navigate("/dashboard"); // ✅ cambia pantalla sin recargar
       } else {
         setError(t("DNI o contraseña incorrectos"));
       }
@@ -34,7 +36,9 @@ const Login = () => {
         <div className="text-center">
           <img src={logo} alt="Mia Logo" className="w-24 mx-auto mb-2" />
           <h1 className="text-xl font-bold text-mia">Mia Evaluación</h1>
-          <p className="text-sm text-gray-500">{t("Tu evaluación mejora el futuro")}</p>
+          <p className="text-sm text-gray-500">
+            {t("Tu evaluación mejora el futuro")}
+          </p>
         </div>
 
         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
