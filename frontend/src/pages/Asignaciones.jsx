@@ -1,4 +1,4 @@
-// ✅ src/pages/Asignaciones.jsx
+// ✅ src/pages/Asignaciones.jsx actualizado con guardar, listar y editar asignaciones
 
 import React, { useEffect, useState } from "react";
 import { getEmpleados, getAsignaciones, asignarEvaluados } from "../services/api";
@@ -7,83 +7,118 @@ import { useTranslation } from "react-i18next";
 const Asignaciones = () => {
   const { t } = useTranslation();
   const [empleados, setEmpleados] = useState([]);
-  const [evaluador, setEvaluador] = useState(null);
-  const [evaluadosSeleccionados, setEvaluadosSeleccionados] = useState([]);
+  const [seleccionado, setSeleccionado] = useState(null);
+  const [asignados, setAsignados] = useState([]);
+  const [asignacionesTotales, setAsignacionesTotales] = useState([]);
 
   useEffect(() => {
-    cargarEmpleados();
+    cargar();
   }, []);
 
-  const cargarEmpleados = async () => {
+  const cargar = async () => {
     const res = await getEmpleados();
-    setEmpleados(Array.isArray(res.data) ? res.data : []);
+    setEmpleados(res.data);
   };
 
-  const seleccionarEvaluador = async (dni) => {
-    const empleado = empleados.find((e) => e.dni === dni);
-    setEvaluador(empleado);
-    const asignaciones = await getAsignaciones(dni);
-    setEvaluadosSeleccionados(Array.isArray(asignaciones.data) ? asignaciones.data : []);
+  const cargarAsignaciones = async (dni) => {
+    const res = await getAsignaciones(dni);
+    setAsignados(res.data);
   };
 
-  const toggleEvaluado = (dni) => {
-    if (evaluadosSeleccionados.includes(dni)) {
-      setEvaluadosSeleccionados(evaluadosSeleccionados.filter((d) => d !== dni));
-    } else {
-      setEvaluadosSeleccionados([...evaluadosSeleccionados, dni]);
-    }
+  const seleccionar = async (e) => {
+    setSeleccionado(e);
+    await cargarAsignaciones(e.dni);
   };
 
-  const guardarAsignaciones = async () => {
-    if (!evaluador) return;
-    await asignarEvaluados(evaluador.dni, evaluadosSeleccionados);
-    alert(t("Asignaciones guardadas correctamente"));
+  const toggleAsignado = (dni) => {
+    const existe = asignados.includes(dni);
+    const actualizados = existe
+      ? asignados.filter((a) => a !== dni)
+      : [...asignados, dni];
+    setAsignados(actualizados);
+  };
+
+  const guardar = async () => {
+    await asignarEvaluados({ evaluador: seleccionado.dni, evaluados: asignados });
+    const nuevaLista = [...asignacionesTotales.filter(a => a.evaluador !== seleccionado.dni), {
+      evaluador: seleccionado.dni,
+      evaluador_nombre: seleccionado.nombre,
+      evaluados: empleados.filter(e => asignados.includes(e.dni))
+    }];
+    setAsignacionesTotales(nuevaLista);
+    setSeleccionado(null);
+    setAsignados([]);
   };
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-mia">{t("Asignaciones de Evaluadores")}</h1>
+      <h1 className="text-2xl font-bold text-mia mb-4">{t("Asignaciones de Evaluación")}</h1>
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          value={evaluador?.dni || ""}
-          onChange={(e) => seleccionarEvaluador(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">{t("Seleccionar evaluador")}</option>
+      {!seleccionado && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {empleados.map((e) => (
-            <option key={e.dni} value={e.dni}>
+            <button
+              key={e.dni}
+              onClick={() => seleccionar(e)}
+              className="border rounded p-2 hover:bg-yellow-50"
+            >
               {e.nombre} ({e.dni})
-            </option>
+            </button>
           ))}
-        </select>
-      </div>
+        </div>
+      )}
 
-      {evaluador && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">
-            {t("Asignar trabajadores que evaluará")}: {evaluador.nombre}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {empleados
-              .filter((e) => e.dni !== evaluador.dni)
-              .map((e) => (
-                <label key={e.dni} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={evaluadosSeleccionados.includes(e.dni)}
-                    onChange={() => toggleEvaluado(e.dni)}
-                  />
-                  {e.nombre} ({e.dni})
-                </label>
-              ))}
+      {seleccionado && (
+        <div className="bg-white border rounded p-4">
+          <h2 className="font-semibold mb-2">{t("Asignar a")} {seleccionado.nombre}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+            {empleados.filter((e) => e.dni !== seleccionado.dni).map((e) => (
+              <label key={e.dni} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={asignados.includes(e.dni)}
+                  onChange={() => toggleAsignado(e.dni)}
+                />
+                {e.nombre}
+              </label>
+            ))}
           </div>
-          <button
-            onClick={guardarAsignaciones}
-            className="bg-mia text-white px-4 py-2 rounded mt-4"
-          >
-            {t("Guardar asignaciones")}
-          </button>
+          <div className="flex gap-4">
+            <button onClick={guardar} className="bg-mia text-white px-4 py-2 rounded">
+              {t("Guardar Asignaciones")}
+            </button>
+            <button
+              onClick={() => {
+                setSeleccionado(null);
+                setAsignados([]);
+              }}
+              className="text-gray-600 underline"
+            >
+              {t("Cancelar")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {asignacionesTotales.length > 0 && (
+        <div className="bg-white p-4 border rounded mt-6">
+          <h2 className="text-lg font-semibold mb-2">{t("Asignaciones Guardadas")}</h2>
+          <ul className="divide-y">
+            {asignacionesTotales.map((a, idx) => (
+              <li key={idx} className="py-2">
+                <strong>{a.evaluador_nombre}</strong>
+                <div className="text-sm text-gray-600">
+                  {a.evaluados.map((e) => e.nombre).join(", ")}
+                </div>
+                <button
+                  onClick={() => seleccionar({ dni: a.evaluador, nombre: a.evaluador_nombre })}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  {t("Editar")}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
