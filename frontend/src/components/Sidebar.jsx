@@ -1,25 +1,40 @@
-// ✅ src/components/Sidebar.jsx
+// ✅ src/components/Sidebar.jsx actualizado para incluir Evaluaciones Config
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
+  const links = [
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/empleados", label: "Empleados" },
+    { to: "/categorias", label: "Categorías" },
+    { to: "/preguntas", label: "Preguntas" },
+    { to: "/niveles", label: "Niveles" },
+    { to: "/asignaciones", label: "Asignaciones" },
+    { to: "/evaluar", label: "Evaluar" },
+    { to: "/mis-evaluaciones", label: "Mis Evaluaciones" },
+    { to: "/perfil", label: "Perfil" },
+    { to: "/niveles-acceso", label: "Niveles de Acceso" },
+    { to: "/evaluaciones-config", label: "Evaluaciones Config" }, // ✅ nueva opción
+    { to: "/ayuda", label: "Ayuda" }
+  ];
+
   return (
-    <aside className="w-full md:w-64 bg-white border-r shadow-sm h-full p-4">
+    <aside className="w-64 bg-white border-r p-4 space-y-2">
       <h2 className="text-xl font-bold text-mia mb-4">Mia Evaluación</h2>
-      <nav className="flex flex-col space-y-2">
-        <Link to="/dashboard" className="hover:text-mia">Dashboard</Link>
-        <Link to="/empleados" className="hover:text-mia">Empleados</Link>
-        <Link to="/categorias" className="hover:text-mia">Categorías</Link>
-        <Link to="/preguntas" className="hover:text-mia">Preguntas</Link>
-        <Link to="/niveles" className="hover:text-mia">Niveles</Link>
-        <Link to="/asignaciones" className="hover:text-mia">Asignaciones</Link>
-        <Link to="/evaluar" className="hover:text-mia">Realizar Evaluación</Link>
-        <Link to="/mis-evaluaciones" className="hover:text-mia">Mis Evaluaciones</Link>
-        <Link to="/perfil" className="hover:text-mia">Mi Perfil</Link>
-        <Link to="/niveles-acceso" className="hover:text-mia">Niveles de Acceso</Link>
-        <Link to="/ayuda" className="hover:text-mia">Ayuda</Link>
-      </nav>
+      {links.map((link) => (
+        <NavLink
+          key={link.to}
+          to={link.to}
+          className={({ isActive }) =>
+            `block px-4 py-2 rounded hover:bg-mia hover:text-white ${
+              isActive ? "bg-mia text-white" : "text-gray-700"
+            }`
+          }
+        >
+          {link.label}
+        </NavLink>
+      ))}
     </aside>
   );
 };
