@@ -1,64 +1,23 @@
+// ✅ src/components/Sidebar.jsx
+
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import {
-  BarChart2,
-  ClipboardList,
-  Settings,
-  HelpCircle
-} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
-  const location = useLocation();
-  const { t, i18n } = useTranslation();
-
-  const isActive = (path) => location.pathname.includes(path);
-
-  const cambiarIdioma = (lang) => {
-    i18n.changeLanguage(lang);
-  };
-
   return (
-    <div className="w-64 bg-white shadow-xl p-6 flex flex-col justify-between font-inter">
-      <div>
-        <h1 className="text-2xl font-bold text-mia mb-6">Mia Evaluación</h1>
-        <nav className="space-y-4 text-sm">
-          <Link
-            to="/app/dashboard"
-            className={`flex items-center gap-2 ${isActive("dashboard") ? "text-mia font-semibold" : "text-gray-700"}`}
-          >
-            <BarChart2 size={18} /> {t("Dashboard")}
-          </Link>
-          <Link
-            to="/app/evaluacion"
-            className={`flex items-center gap-2 ${isActive("evaluacion") ? "text-mia font-semibold" : "text-gray-700"}`}
-          >
-            <ClipboardList size={18} /> {t("Evaluar")}
-          </Link>
-          <Link
-            to="/app/configuracion"
-            className={`flex items-center gap-2 ${isActive("configuracion") ? "text-mia font-semibold" : "text-gray-700"}`}
-          >
-            <Settings size={18} /> {t("Configuración")}
-          </Link>
-          <Link
-            to="/app/ayuda"
-            className={`flex items-center gap-2 ${isActive("ayuda") ? "text-mia font-semibold" : "text-gray-700"}`}
-          >
-            <HelpCircle size={18} /> {t("Ayuda")}
-          </Link>
-        </nav>
-      </div>
-
-      <div className="space-y-2 text-sm text-gray-600">
-        <p className="font-medium">{t("Idioma")}:</p>
-        <div className="flex gap-3">
-          <button onClick={() => cambiarIdioma("es")} className="hover:underline">ES</button>
-          <button onClick={() => cambiarIdioma("en")} className="hover:underline">EN</button>
-          <button onClick={() => cambiarIdioma("pt")} className="hover:underline">PT</button>
-        </div>
-      </div>
-    </div>
+    <aside className="w-full md:w-64 bg-white border-r shadow-sm h-full p-4">
+      <h2 className="text-xl font-bold text-mia mb-4">Mia Evaluación</h2>
+      <nav className="flex flex-col space-y-2">
+        <Link to="/dashboard" className="hover:text-mia">Dashboard</Link>
+        <Link to="/empleados" className="hover:text-mia">Empleados</Link>
+        <Link to="/categorias" className="hover:text-mia">Categorías</Link>
+        <Link to="/preguntas" className="hover:text-mia">Preguntas</Link>
+        <Link to="/niveles" className="hover:text-mia">Niveles</Link>
+        <Link to="/asignaciones" className="hover:text-mia">Asignaciones</Link>
+        <Link to="/evaluar" className="hover:text-mia">Realizar Evaluación</Link>
+        <Link to="/ayuda" className="hover:text-mia">Ayuda</Link>
+      </nav>
+    </aside>
   );
 };
 
