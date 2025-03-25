@@ -1,3 +1,5 @@
+// ✅ src/services/api.js
+
 import axios from "axios";
 
 const API = "https://mia-backend.onrender.com/api"; // Cambiar si estás en local
@@ -23,3 +25,8 @@ export const asignarEvaluados = async (evaluador, evaluados) =>
 
 export const enviarEvaluacion = async (data) => axios.post(`${API}/evaluacion`, data);
 export const getResultadosPorEmpleado = async (dni) => axios.get(`${API}/resultados/${dni}`);
+
+// 🔐 Niveles de acceso
+export const getNivelesAcceso = async () => axios.get(`${API}/niveles-acceso`);
+export const addNivelAcceso = async (data) => axios.post(`${API}/niveles-acceso`, data);
+export const updateNivelAcceso = async (data) => axios.put(`${API}/niveles-acceso`, data);
