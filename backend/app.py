@@ -1,5 +1,3 @@
-# ✅ backend/app.py con rutas para niveles de acceso y asignaciones
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
@@ -46,6 +44,20 @@ def update_empleado():
         (d["nombre"], d["sucursal"], d["area"], d["contrasena"], d["nivel_acceso"], d["dni"])
     )
     return jsonify({"status": "updated"})
+
+# -----------------------------
+# NIVELES DE ACCESO
+# -----------------------------
+@app.route("/api/niveles-acceso", methods=["GET"])
+def get_niveles_acceso():
+    rows = query_db("SELECT id, nombre, permisos FROM niveles_acceso")
+    return jsonify([{"id": r[0], "nombre": r[1], "permisos": r[2]} for r in rows])
+
+@app.route("/api/niveles-acceso", methods=["POST"])
+def add_nivel_acceso():
+    d = request.json
+    query_db("INSERT INTO niveles_acceso (nombre, permisos) VALUES (?, ?)", (d["nombre"], d["permisos"]))
+    return jsonify({"status": "ok"})
 
 @app.route("/api/niveles-acceso", methods=["PUT"])
 def update_nivel_acceso():
