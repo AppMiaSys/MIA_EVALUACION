@@ -1,34 +1,25 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "/api"
-});
+const API = "https://mia-backend.onrender.com/api"; // Cambiar si estás en local
 
-// === EMPLEADOS ===
-export const getEmpleados = () => API.get("/empleados");
-export const addEmpleado = (data) => API.post("/empleados", data);
-export const updateEmpleado = (data) => API.put("/empleados", data);
+export const getEmpleados = async () => axios.get(`${API}/empleados`);
+export const addEmpleado = async (data) => axios.post(`${API}/empleados`, data);
+export const updateEmpleado = async (data) => axios.put(`${API}/empleados`, data);
 
-// === CATEGORÍAS ===
-export const getCategorias = () => API.get("/categorias");
-export const addCategoria = (data) => API.post("/categorias", data);
+export const getCategorias = async () => axios.get(`${API}/categorias`);
+export const addCategoria = async (data) => axios.post(`${API}/categorias`, data);
 
-// === PREGUNTAS ===
-export const getPreguntas = () => API.get("/preguntas");
-export const addPregunta = (data) => API.post("/preguntas", data);
-export const updatePregunta = (data) => API.put("/preguntas", data);
+export const getPreguntas = async () => axios.get(`${API}/preguntas`);
+export const addPregunta = async (data) => axios.post(`${API}/preguntas`, data);
+export const updatePregunta = async (data) => axios.put(`${API}/preguntas`, data);
 
-// === NIVELES ===
-export const getNiveles = () => API.get("/niveles");
-export const addNivel = (data) => API.post("/niveles", data);
-export const updateNivel = (data) => API.put("/niveles", data);
+export const getNiveles = async () => axios.get(`${API}/niveles`);
+export const addNivel = async (data) => axios.post(`${API}/niveles`, data);
+export const updateNivel = async (data) => axios.put(`${API}/niveles`, data);
 
-// === ASIGNACIONES ===
-export const getAsignaciones = (dni) => API.get(`/asignaciones?dni=${dni}`);
-export const saveAsignaciones = (data) => API.post("/asignaciones", data);
+export const getAsignaciones = async (dni) => axios.get(`${API}/asignaciones/${dni}`);
+export const asignarEvaluados = async (evaluador, evaluados) =>
+  axios.post(`${API}/asignaciones`, { evaluador, evaluados });
 
-// === EVALUACIONES ===
-export const enviarEvaluacion = (data) => API.post("/evaluaciones", data);
-export const getEvaluaciones = () => API.get("/evaluaciones");
-export const getResultadosPorEmpleado = (dni) =>
-  API.get(`/empleado/resultados/${dni}`);
+export const enviarEvaluacion = async (data) => axios.post(`${API}/evaluacion`, data);
+export const getResultadosPorEmpleado = async (dni) => axios.get(`${API}/resultados/${dni}`);
