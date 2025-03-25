@@ -1,6 +1,6 @@
-// ✅ src/App.jsx actualizado con protección de rutas
+// ✅ src/App.jsx actualizado con sesión reactiva
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -16,12 +16,21 @@ import NivelesAcceso from "./pages/NivelesAcceso";
 import Ayuda from "./pages/Ayuda";
 import Login from "./pages/Login";
 
-const isAuthenticated = !!localStorage.getItem("usuario");
-
 const App = () => {
+  const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario")));
+
+  useEffect(() => {
+    const listener = () => {
+      const user = JSON.parse(localStorage.getItem("usuario"));
+      setUsuario(user);
+    };
+    window.addEventListener("storage", listener);
+    return () => window.removeEventListener("storage", listener);
+  }, []);
+
   return (
     <Router>
-      {isAuthenticated ? (
+      {usuario ? (
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 p-4">
