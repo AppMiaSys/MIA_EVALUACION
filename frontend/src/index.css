@@ -1,10 +1,8 @@
 /* ✅ src/index.css */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos personalizados */
 body {
   font-family: 'Inter', sans-serif;
   background-color: #f9fafb;
