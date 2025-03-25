@@ -21,29 +21,38 @@ def query_db(query, args=(), one=False):
 # -----------------------------
 @app.route("/api/empleados", methods=["GET"])
 def get_empleados():
-    rows = query_db("SELECT dni, nombre, sucursal, area, contrasena, nivel_acceso FROM empleados")
-    return jsonify([{
-        "dni": r[0], "nombre": r[1], "sucursal": r[2], "area": r[3],
-        "contrasena": r[4], "nivel_acceso": r[5]
-    } for r in rows])
+    try:
+        rows = query_db("SELECT dni, nombre, sucursal, area, contrasena, nivel_acceso FROM empleados")
+        return jsonify([{
+            "dni": r[0], "nombre": r[1], "sucursal": r[2], "area": r[3],
+            "contrasena": r[4], "nivel_acceso": r[5]
+        } for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/empleados", methods=["POST"])
 def add_empleado():
-    d = request.json
-    query_db(
-        "INSERT INTO empleados (dni, nombre, sucursal, area, contrasena, nivel_acceso) VALUES (?, ?, ?, ?, ?, ?)",
-        (d["dni"], d["nombre"], d.get("sucursal", ""), d.get("area", ""), d["contrasena"], d.get("nivel_acceso", 1))
-    )
-    return jsonify({"status": "ok"})
+    try:
+        d = request.json
+        query_db(
+            "INSERT INTO empleados (dni, nombre, sucursal, area, contrasena, nivel_acceso) VALUES (?, ?, ?, ?, ?, ?)",
+            (d["dni"], d["nombre"], d.get("sucursal", ""), d.get("area", ""), d["contrasena"], d.get("nivel_acceso", 1))
+        )
+        return jsonify({"status": "ok"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/empleados", methods=["PUT"])
 def update_empleado():
-    d = request.json
-    query_db(
-        "UPDATE empleados SET nombre=?, sucursal=?, area=?, contrasena=?, nivel_acceso=? WHERE dni=?",
-        (d["nombre"], d["sucursal"], d["area"], d["contrasena"], d["nivel_acceso"], d["dni"])
-    )
-    return jsonify({"status": "updated"})
+    try:
+        d = request.json
+        query_db(
+            "UPDATE empleados SET nombre=?, sucursal=?, area=?, contrasena=?, nivel_acceso=? WHERE dni=?",
+            (d["nombre"], d["sucursal"], d["area"], d["contrasena"], d["nivel_acceso"], d["dni"])
+        )
+        return jsonify({"status": "updated"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # -----------------------------
 # NIVELES DE ACCESO
@@ -84,6 +93,29 @@ def post_asignaciones():
     return jsonify({"status": "ok"})
 
 # -----------------------------
+# EVALUACIONES
+# -----------------------------
+@app.route("/api/evaluaciones", methods=["GET"])
+def get_evaluaciones():
+    rows = query_db("SELECT id, nombre FROM evaluaciones")
+    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+
+@app.route("/api/evaluaciones/nueva", methods=["POST"])
+def add_evaluacion():
+    d = request.json
+    query_db("INSERT INTO evaluaciones (nombre) VALUES (?)", (d["nombre"],))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/evaluaciones", methods=["POST"])
+def enviar_evaluacion():
+    d = request.json
+    query_db(
+        "INSERT INTO evaluaciones_resultado (evaluador_dni, evaluado_dni, evaluacion_id, categoria_id, pregunta_id, puntuacion, fecha) VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE)",
+        (d["evaluador"], d["evaluado"], d["evaluacion_id"], d["categoria_id"], d["pregunta_id"], d["puntuacion"])
+    )
+    return jsonify({"status": "ok"})
+
+# -----------------------------
 # EVALUACION USUARIOS
 # -----------------------------
 @app.route("/api/evaluaciones/<int:evaluacion_id>/evaluados", methods=["POST"])
@@ -98,6 +130,75 @@ def set_evaluados_por_evaluacion(evaluacion_id):
 def get_evaluados_por_evaluacion(evaluacion_id):
     rows = query_db("SELECT empleado_dni FROM evaluacion_usuarios WHERE evaluacion_id = ?", (evaluacion_id,))
     return jsonify([r[0] for r in rows])
+
+# -----------------------------
+# CATEGORIAS
+# -----------------------------
+@app.route("/api/categorias", methods=["GET"])
+def get_categorias():
+    rows = query_db("SELECT id, nombre FROM categorias")
+    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+
+@app.route("/api/categorias", methods=["POST"])
+def add_categoria():
+    d = request.json
+    query_db("INSERT INTO categorias (nombre) VALUES (?)", (d["nombre"],))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/evaluaciones/<int:evaluacion_id>/categorias", methods=["GET"])
+def get_categorias_by_evaluacion(evaluacion_id):
+    rows = query_db("SELECT id, nombre FROM categorias WHERE evaluacion_id = ?", (evaluacion_id,))
+    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+
+# -----------------------------
+# PREGUNTAS
+# -----------------------------
+@app.route("/api/preguntas", methods=["GET"])
+def get_preguntas():
+    rows = query_db("SELECT id, texto, categoria_id FROM preguntas")
+    return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
+
+@app.route("/api/preguntas", methods=["POST"])
+def add_pregunta():
+    d = request.json
+    query_db("INSERT INTO preguntas (texto, categoria_id) VALUES (?, ?)", (d["texto"], d["categoria_id"]))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/preguntas", methods=["PUT"])
+def update_pregunta():
+    d = request.json
+    query_db("UPDATE preguntas SET texto = ?, categoria_id = ? WHERE id = ?", (d["texto"], d["categoria_id"], d["id"]))
+    return jsonify({"status": "updated"})
+
+@app.route("/api/evaluaciones/<int:evaluacion_id>/preguntas", methods=["GET"])
+def get_preguntas_by_evaluacion(evaluacion_id):
+    rows = query_db("SELECT id, texto, categoria_id FROM preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
+    return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
+
+# -----------------------------
+# NIVELES DE CALIFICACION
+# -----------------------------
+@app.route("/api/niveles", methods=["GET"])
+def get_niveles():
+    rows = query_db("SELECT id, nombre, puntaje FROM niveles")
+    return jsonify([{"id": r[0], "nombre": r[1], "puntaje": r[2]} for r in rows])
+
+@app.route("/api/niveles", methods=["POST"])
+def add_nivel():
+    d = request.json
+    query_db("INSERT INTO niveles (nombre, puntaje) VALUES (?, ?)", (d["nombre"], d["puntaje"]))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/niveles", methods=["PUT"])
+def update_nivel():
+    d = request.json
+    query_db("UPDATE niveles SET nombre = ?, puntaje = ? WHERE id = ?", (d["nombre"], d["puntaje"], d["id"]))
+    return jsonify({"status": "updated"})
+
+@app.route("/api/evaluaciones/<int:evaluacion_id>/niveles", methods=["GET"])
+def get_niveles_by_evaluacion(evaluacion_id):
+    rows = query_db("SELECT id, nombre, puntaje FROM niveles WHERE evaluacion_id = ?", (evaluacion_id,))
+    return jsonify([{"id": r[0], "nombre": r[1], "puntaje": r[2]} for r in rows])
 
 if __name__ == "__main__":
     app.run(debug=True)
