@@ -1,4 +1,4 @@
-// ✅ src/pages/Empleados.jsx con lógica mejorada para mostrar modal
+// ✅ src/pages/Empleados.jsx con nivel de acceso en el formulario
 
 import React, { useEffect, useState } from "react";
 import { getEmpleados, addEmpleado, updateEmpleado } from "../services/api";
@@ -56,6 +56,11 @@ const Empleados = () => {
           <input type="text" placeholder="Sucursal" value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" placeholder="Área" value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
+          <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
+            <option value={1}>Super Admin</option>
+            <option value={2}>Administrador</option>
+            <option value={3}>Colaborador</option>
+          </select>
           <button onClick={guardar} className="bg-mia text-white px-4 py-2 rounded w-full">{t("Registrar")}</button>
         </div>
       ) : (
@@ -79,6 +84,11 @@ const Empleados = () => {
             <input type="text" placeholder="Sucursal" value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Área" value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
+            <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
+              <option value={1}>Super Admin</option>
+              <option value={2}>Administrador</option>
+              <option value={3}>Colaborador</option>
+            </select>
             <div className="flex justify-end gap-2">
               <button onClick={() => setMostrarFormulario(false)} className="text-gray-600 hover:underline">{t("Cancelar")}</button>
               <button onClick={guardar} className="bg-mia text-white px-4 py-2 rounded">{t("Guardar")}</button>
@@ -94,6 +104,11 @@ const Empleados = () => {
           <input type="text" value={editando.sucursal} onChange={(e) => setEditando({ ...editando, sucursal: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" value={editando.area} onChange={(e) => setEditando({ ...editando, area: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" value={editando.contrasena} onChange={(e) => setEditando({ ...editando, contrasena: e.target.value })} className="border p-2 rounded w-full" />
+          <select value={editando.nivel_acceso} onChange={(e) => setEditando({ ...editando, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
+            <option value={1}>Super Admin</option>
+            <option value={2}>Administrador</option>
+            <option value={3}>Colaborador</option>
+          </select>
           <button onClick={guardarEdicion} className="bg-mia text-white px-4 py-2 rounded">{t("Guardar cambios")}</button>
         </div>
       )}
