@@ -1,4 +1,4 @@
-// ✅ src/App.jsx actualizado con sesión reactiva
+// ✅ src/App.jsx actualizado para incluir EvaluacionesConfig.jsx
 
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import Perfil from "./pages/Perfil";
 import NivelesAcceso from "./pages/NivelesAcceso";
 import Ayuda from "./pages/Ayuda";
 import Login from "./pages/Login";
+import EvaluacionesConfig from "./pages/EvaluacionesConfig"; // ✅ nueva página
 
 const App = () => {
   const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario")));
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/mis-evaluaciones" element={<MisEvaluaciones />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/niveles-acceso" element={<NivelesAcceso />} />
+              <Route path="/evaluaciones-config" element={<EvaluacionesConfig />} /> {/* ✅ nueva ruta */}
               <Route path="/ayuda" element={<Ayuda />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
