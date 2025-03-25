@@ -1,13 +1,9 @@
-// ✅ src/pages/Login.jsx
-
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/mia-logo.svg";
 
 const Login = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [dni, setDni] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -21,7 +17,7 @@ const Login = () => {
       );
       if (usuario) {
         localStorage.setItem("usuario", JSON.stringify(usuario));
-        navigate("/dashboard"); // ✅ cambia pantalla sin recargar
+        window.location.reload(); // ✅ fuerza recarga para que App.jsx reconozca sesión
       } else {
         setError(t("DNI o contraseña incorrectos"));
       }
