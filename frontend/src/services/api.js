@@ -1,4 +1,4 @@
-// ✅ src/services/api.js actualizado con funciones de preguntas y niveles
+// ✅ src/services/api.js actualizado con funciones de preguntas, niveles y evaluaciones
 
 import axios from "axios";
 
@@ -38,6 +38,8 @@ export const getNiveles = () => axios.get(`${API}/niveles`);
 export const addNivel = (data) => axios.post(`${API}/niveles`, data);
 export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
 
-// Enviar evaluación
+// Evaluaciones
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
+export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
+
 
