@@ -70,10 +70,27 @@ def get_preguntas_by_eval(evalid):
     rows = query_db("SELECT p.id, p.texto, p.categoria_id FROM preguntas p JOIN categorias c ON p.categoria_id = c.id WHERE c.evaluacion_id = ?", (evalid,))
     return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
 
-@app.route("/api/niveles/<int:evalid>", methods=["GET"])
-def get_niveles_by_eval(evalid):
-    rows = query_db("SELECT id, nivel, puntos FROM niveles WHERE evaluacion_id = ?", (evalid,))
-    return jsonify([{"id": r[0], "nivel": r[1], "puntos": r[2]} for r in rows])
+# Rutas para niveles de acceso
+
+@app.route("/api/niveles-acceso", methods=["GET"])
+def get_niveles_acceso():
+    rows = query_db("SELECT id, nombre, permisos FROM niveles_acceso")
+    return jsonify([{"id": r[0], "nombre": r[1], "permisos": r[2]} for r in rows])
+
+@app.route("/api/niveles-acceso", methods=["POST"])
+def add_nivel_acceso():
+    d = request.json
+    query_db("INSERT INTO niveles_acceso (nombre, permisos) VALUES (?, ?)",
+             (d["nombre"], d["permisos"]))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/niveles-acceso", methods=["PUT"])
+def update_nivel_acceso():
+    d = request.json
+    query_db("UPDATE niveles_acceso SET nombre = ?, permisos = ? WHERE id = ?",
+             (d["nombre"], d["permisos"], d["id"]))
+    return jsonify({"status": "updated"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
