@@ -1,19 +1,20 @@
 services:
   - type: web
     name: mia-backend
-    env: python
-    plan: free
-    buildCommand: ""
-    startCommand: gunicorn app:app
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
     envVars:
-      - key: DATABASE_URL
-        value: mia_evaluacion.db
-    autoDeploy: true
-
+      - key: FLASK_ENV
+        value: production
+    plan: free
 
   - type: web
     name: mia-frontend
-    env: node
-    buildCommand: npm install && npm run build
-    startCommand: npx serve -s build
-    rootDir: frontend
+    runtime: static
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: "build"
+    envVars:
+      - key: NODE_VERSION
+        value: 18.16.0
+    plan: free
