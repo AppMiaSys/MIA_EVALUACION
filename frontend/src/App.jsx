@@ -10,6 +10,9 @@ import Preguntas from "./pages/Preguntas";
 import Niveles from "./pages/Niveles";
 import Asignaciones from "./pages/Asignaciones";
 import Evaluacion from "./pages/Evaluacion";
+import MisEvaluaciones from "./pages/MisEvaluaciones";
+import Perfil from "./pages/Perfil";
+import NivelesAcceso from "./pages/NivelesAcceso";
 import Ayuda from "./pages/Ayuda";
 
 const App = () => {
@@ -27,6 +30,9 @@ const App = () => {
             <Route path="/niveles" element={<Niveles />} />
             <Route path="/asignaciones" element={<Asignaciones />} />
             <Route path="/evaluar" element={<Evaluacion />} />
+            <Route path="/mis-evaluaciones" element={<MisEvaluaciones />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/niveles-acceso" element={<NivelesAcceso />} />
             <Route path="/ayuda" element={<Ayuda />} />
           </Routes>
         </main>
