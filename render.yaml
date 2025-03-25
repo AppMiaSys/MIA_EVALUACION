@@ -1,9 +1,11 @@
+# ✅ render.yaml corregido para Mia Evaluación
+
 services:
   - type: web
     name: mia-backend
     runtime: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
+    startCommand: "gunicorn app:app"
     envVars:
       - key: FLASK_ENV
         value: production
