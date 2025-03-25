@@ -1,13 +1,18 @@
-// ✅ src/pages/NivelesAcceso.jsx
+// ✅ src/pages/NivelesAcceso.jsx actualizado con checklist
 
 import React, { useEffect, useState } from "react";
 import { getNivelesAcceso, addNivelAcceso, updateNivelAcceso } from "../services/api";
 import { useTranslation } from "react-i18next";
 
+const opciones = [
+  "Dashboard", "Empleados", "Categorías", "Preguntas", "Niveles",
+  "Asignaciones", "Evaluar", "Mis Evaluaciones", "Perfil", "Niveles de Acceso", "Ayuda"
+];
+
 const NivelesAcceso = () => {
   const { t } = useTranslation();
   const [niveles, setNiveles] = useState([]);
-  const [nuevo, setNuevo] = useState({ nombre: "", permisos: "" });
+  const [nuevo, setNuevo] = useState({ nombre: "", permisos: [] });
   const [editando, setEditando] = useState(null);
 
   useEffect(() => {
@@ -16,83 +21,99 @@ const NivelesAcceso = () => {
 
   const cargar = async () => {
     const res = await getNivelesAcceso();
-    setNiveles(Array.isArray(res.data) ? res.data : []);
+    setNiveles(res.data);
+  };
+
+  const togglePermiso = (permiso, enEdicion = false) => {
+    const target = enEdicion ? editando : nuevo;
+    const permisos = [...(target.permisos || [])];
+    const i = permisos.indexOf(permiso);
+    if (i >= 0) permisos.splice(i, 1);
+    else permisos.push(permiso);
+    enEdicion ? setEditando({ ...target, permisos }) : setNuevo({ ...target, permisos });
   };
 
   const handleAdd = async () => {
-    if (!nuevo.nombre || !nuevo.permisos) return;
-    await addNivelAcceso(nuevo);
-    setNuevo({ nombre: "", permisos: "" });
+    if (!nuevo.nombre) return;
+    await addNivelAcceso({ ...nuevo, permisos: nuevo.permisos.join(",") });
+    setNuevo({ nombre: "", permisos: [] });
     cargar();
   };
 
   const handleUpdate = async () => {
-    await updateNivelAcceso(editando);
+    await updateNivelAcceso({ ...editando, permisos: editando.permisos.join(",") });
     setEditando(null);
     cargar();
   };
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold text-mia">{t("Niveles de Acceso")}</h1>
+      <h1 className="text-2xl font-bold text-mia mb-4">{t("Niveles de Acceso")}</h1>
 
-      <div className="flex gap-2 mt-4">
+      <div className="mb-4 p-3 border rounded">
         <input
           type="text"
           placeholder={t("Nombre del nivel")}
           value={nuevo.nombre}
           onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
-          className="border p-2 rounded w-full"
+          className="border p-2 rounded w-full mb-2"
         />
-        <input
-          type="text"
-          placeholder={t("Permisos separados por coma")}
-          value={nuevo.permisos}
-          onChange={(e) => setNuevo({ ...nuevo, permisos: e.target.value })}
-          className="border p-2 rounded w-full"
-        />
-        <button onClick={handleAdd} className="bg-mia text-white px-4 py-1 rounded">
-          {t("Agregar")}
+        <div className="grid grid-cols-2 gap-2">
+          {opciones.map((op) => (
+            <label key={op} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={nuevo.permisos.includes(op)}
+                onChange={() => togglePermiso(op)}
+              />
+              {op}
+            </label>
+          ))}
+        </div>
+        <button onClick={handleAdd} className="mt-3 bg-mia text-white px-4 py-1 rounded">
+          {t("Agregar Nivel")}
         </button>
       </div>
 
-      <ul className="mt-6 bg-white rounded shadow divide-y">
+      <ul className="divide-y rounded border bg-white">
         {niveles.map((n) => (
           <li key={n.id} className="p-3">
-            <div className="flex justify-between">
-              <div>
-                <strong>{n.nombre}</strong>
-                <p className="text-sm text-gray-500">{n.permisos}</p>
-              </div>
-              <button
-                onClick={() => setEditando(n)}
-                className="text-blue-600 hover:underline"
-              >
-                {t("Editar")}
-              </button>
-            </div>
+            <strong>{n.nombre}</strong>
+            <div className="text-sm text-gray-600">{n.permisos}</div>
+            <button
+              onClick={() => setEditando({ ...n, permisos: n.permisos.split(",") })}
+              className="text-blue-600 text-sm hover:underline mt-1"
+            >
+              {t("Editar")}
+            </button>
           </li>
         ))}
       </ul>
 
       {editando && (
-        <div className="mt-4 p-4 border rounded bg-yellow-50">
-          <h3 className="font-semibold mb-2">{t("Editar Nivel")}</h3>
+        <div className="mt-6 p-4 border bg-yellow-50 rounded">
+          <h3 className="font-semibold mb-2">{t("Editar Nivel de Acceso")}</h3>
           <input
             type="text"
             value={editando.nombre}
             onChange={(e) => setEditando({ ...editando, nombre: e.target.value })}
-            className="border p-1 m-1 rounded"
+            className="border p-2 rounded w-full mb-2"
           />
-          <input
-            type="text"
-            value={editando.permisos}
-            onChange={(e) => setEditando({ ...editando, permisos: e.target.value })}
-            className="border p-1 m-1 rounded"
-          />
+          <div className="grid grid-cols-2 gap-2">
+            {opciones.map((op) => (
+              <label key={op} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editando.permisos.includes(op)}
+                  onChange={() => togglePermiso(op, true)}
+                />
+                {op}
+              </label>
+            ))}
+          </div>
           <button
             onClick={handleUpdate}
-            className="bg-mia text-white px-4 py-1 rounded ml-2"
+            className="mt-3 bg-mia text-white px-4 py-1 rounded"
           >
             {t("Guardar cambios")}
           </button>
