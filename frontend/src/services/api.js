@@ -1,4 +1,4 @@
-// ✅ src/services/api.js actualizado
+// ✅ src/services/api.js actualizado con getCategorias
 
 import axios from "axios";
 
@@ -18,6 +18,11 @@ export const getNivelesAcceso = () => axios.get(`${API}/niveles-acceso`);
 export const addNivelAcceso = (data) => axios.post(`${API}/niveles-acceso`, data);
 export const updateNivelAcceso = (data) => axios.put(`${API}/niveles-acceso`, data);
 
-// 🔄 Futuro: guardar evaluados por evaluación
-// export const guardarEvaluadosPorEvaluacion = (evaluacionId, empleados) =>
-//   axios.post(`${API}/evaluaciones/${evaluacionId}/evaluados`, { empleados });
+// Evaluación usuarios por evaluación
+export const guardarEvaluadosPorEvaluacion = (evaluacionId, empleados) =>
+  axios.post(`${API}/evaluaciones/${evaluacionId}/evaluados`, { empleados });
+export const obtenerEvaluadosPorEvaluacion = (evaluacionId) =>
+  axios.get(`${API}/evaluaciones/${evaluacionId}/evaluados`);
+
+// Categorías
+export const getCategorias = () => axios.get(`${API}/categorias`);
