@@ -37,3 +37,7 @@ export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
 export const getNiveles = () => axios.get(`${API}/niveles`);
 export const addNivel = (data) => axios.post(`${API}/niveles`, data);
 export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
+
+// Enviar evaluación
+export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
+
