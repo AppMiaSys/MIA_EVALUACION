@@ -202,3 +202,43 @@ def get_niveles_by_evaluacion(evaluacion_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+# -----------------------------
+# SUCURSALES
+# -----------------------------
+@app.route("/api/sucursales", methods=["GET"])
+def get_sucursales():
+    rows = query_db("SELECT id, nombre FROM sucursales")
+    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+
+@app.route("/api/sucursales", methods=["POST"])
+def add_sucursal():
+    d = request.json
+    query_db("INSERT INTO sucursales (nombre) VALUES (?)", (d["nombre"],))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/sucursales", methods=["PUT"])
+def update_sucursal():
+    d = request.json
+    query_db("UPDATE sucursales SET nombre = ? WHERE id = ?", (d["nombre"], d["id"]))
+    return jsonify({"status": "updated"})
+
+# -----------------------------
+# AREAS
+# -----------------------------
+@app.route("/api/areas", methods=["GET"])
+def get_areas():
+    rows = query_db("SELECT id, nombre FROM areas")
+    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+
+@app.route("/api/areas", methods=["POST"])
+def add_area():
+    d = request.json
+    query_db("INSERT INTO areas (nombre) VALUES (?)", (d["nombre"],))
+    return jsonify({"status": "ok"})
+
+@app.route("/api/areas", methods=["PUT"])
+def update_area():
+    d = request.json
+    query_db("UPDATE areas SET nombre = ? WHERE id = ?", (d["nombre"], d["id"]))
+    return jsonify({"status": "updated"})
