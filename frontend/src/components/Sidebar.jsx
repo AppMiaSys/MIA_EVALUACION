@@ -17,6 +17,12 @@ const Sidebar = () => {
       ],
     },
     {
+  nombre: "Niveles de Evaluación",
+  ruta: "/niveles",
+  icono: <BarChart2 />
+}
+
+    {
       title: "Evaluaciones",
       children: [
         { to: "/evaluaciones-config", label: "Configuración de evaluaciones" },
