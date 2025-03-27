@@ -12,6 +12,8 @@ const Sidebar = () => {
         { to: "/niveles-acceso", label: "Niveles de Acceso" },
         { to: "/empleados", label: "Usuarios" },
         { to: "/asignaciones", label: "Asignaciones" },
+        { to: "/sucursales", label: "Sucursales" }, // ✅ agregado
+        { to: "/areas", label: "Áreas" },           // ✅ agregado
       ],
     },
     {
@@ -71,3 +73,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
