@@ -1,18 +1,20 @@
-// ✅ src/pages/Empleados.jsx con nivel de acceso en el formulario
+// ✅ src/pages/Empleados.jsx con integración dinámica de niveles de acceso
 
 import React, { useEffect, useState } from "react";
-import { getEmpleados, addEmpleado, updateEmpleado } from "../services/api";
+import { getEmpleados, addEmpleado, updateEmpleado, getNivelesAcceso } from "../services/api";
 import { useTranslation } from "react-i18next";
 
 const Empleados = () => {
   const { t } = useTranslation();
   const [empleados, setEmpleados] = useState([]);
-  const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: 2 });
+  const [niveles, setNiveles] = useState([]);
+  const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
   const [editando, setEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
     cargar();
+    cargarNiveles();
   }, []);
 
   const cargar = async () => {
@@ -20,10 +22,15 @@ const Empleados = () => {
     setEmpleados(res.data);
   };
 
+  const cargarNiveles = async () => {
+    const res = await getNivelesAcceso();
+    setNiveles(res.data);
+  };
+
   const guardar = async () => {
-    if (!nuevo.dni || !nuevo.nombre) return;
+    if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
     await addEmpleado(nuevo);
-    setNuevo({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: 2 });
+    setNuevo({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
     setMostrarFormulario(false);
     await cargar();
   };
@@ -56,10 +63,11 @@ const Empleados = () => {
           <input type="text" placeholder="Sucursal" value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" placeholder="Área" value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
-          <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
-            <option value={1}>Super Admin</option>
-            <option value={2}>Administrador</option>
-            <option value={3}>Colaborador</option>
+          <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
+            <option value="">{t("Selecciona un nivel")}</option>
+            {niveles.map((n) => (
+              <option key={n.id} value={n.id}>{n.nombre}</option>
+            ))}
           </select>
           <button onClick={guardar} className="bg-mia text-white px-4 py-2 rounded w-full">{t("Registrar")}</button>
         </div>
@@ -84,10 +92,11 @@ const Empleados = () => {
             <input type="text" placeholder="Sucursal" value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Área" value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
-            <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
-              <option value={1}>Super Admin</option>
-              <option value={2}>Administrador</option>
-              <option value={3}>Colaborador</option>
+            <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
+              <option value="">{t("Selecciona un nivel")}</option>
+              {niveles.map((n) => (
+                <option key={n.id} value={n.id}>{n.nombre}</option>
+              ))}
             </select>
             <div className="flex justify-end gap-2">
               <button onClick={() => setMostrarFormulario(false)} className="text-gray-600 hover:underline">{t("Cancelar")}</button>
@@ -104,10 +113,11 @@ const Empleados = () => {
           <input type="text" value={editando.sucursal} onChange={(e) => setEditando({ ...editando, sucursal: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" value={editando.area} onChange={(e) => setEditando({ ...editando, area: e.target.value })} className="border p-2 rounded w-full" />
           <input type="text" value={editando.contrasena} onChange={(e) => setEditando({ ...editando, contrasena: e.target.value })} className="border p-2 rounded w-full" />
-          <select value={editando.nivel_acceso} onChange={(e) => setEditando({ ...editando, nivel_acceso: parseInt(e.target.value) })} className="border p-2 rounded w-full">
-            <option value={1}>Super Admin</option>
-            <option value={2}>Administrador</option>
-            <option value={3}>Colaborador</option>
+          <select value={editando.nivel_acceso} onChange={(e) => setEditando({ ...editando, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
+            <option value="">{t("Selecciona un nivel")}</option>
+            {niveles.map((n) => (
+              <option key={n.id} value={n.id}>{n.nombre}</option>
+            ))}
           </select>
           <button onClick={guardarEdicion} className="bg-mia text-white px-4 py-2 rounded">{t("Guardar cambios")}</button>
         </div>
