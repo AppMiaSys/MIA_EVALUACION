@@ -20,7 +20,7 @@ const Sidebar = () => {
   nombre: "Niveles de Evaluación",
   ruta: "/niveles",
   icono: <BarChart2 />
-}
+},
 
     {
       title: "Evaluaciones",
