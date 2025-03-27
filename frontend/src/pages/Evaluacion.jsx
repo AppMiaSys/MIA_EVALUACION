@@ -1,19 +1,20 @@
-// ✅ src/pages/Evaluacion.jsx
-
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   getAsignaciones,
-  getCategorias,
-  getPreguntas,
-  getNiveles,
+  getCategoriasByEvaluacion,
+  getPreguntasByEvaluacion,
+  getNivelesByEvaluacion,
+  getEmpleados,
   enviarEvaluacion
 } from "../services/api";
 
 const Evaluacion = () => {
   const { t } = useTranslation();
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-  const [evaluados, setEvaluados] = useState([]);
+
+  const [empleados, setEmpleados] = useState([]);
+  const [evaluadosAsignados, setEvaluadosAsignados] = useState([]);
   const [seleccionado, setSeleccionado] = useState("");
   const [categorias, setCategorias] = useState([]);
   const [preguntas, setPreguntas] = useState([]);
@@ -22,36 +23,40 @@ const Evaluacion = () => {
 
   useEffect(() => {
     const cargarDatos = async () => {
-      const [evals, cats, pregs, nivs] = await Promise.all([
-        getAsignaciones(usuario.dni),
-        getCategorias(),
-        getPreguntas(),
-        getNiveles()
-      ]);
-      setEvaluados(evals.data);
-      setCategorias(cats.data);
-      setPreguntas(pregs.data);
-      setNiveles(nivs.data);
+      const asignados = await getAsignaciones(usuario.dni);
+      const empleadosTodos = await getEmpleados();
+      setEvaluadosAsignados(asignados.data);
+      setEmpleados(empleadosTodos.data);
+
+      const categorias = await getCategoriasByEvaluacion(1);
+      const preguntas = await getPreguntasByEvaluacion(1);
+      const niveles = await getNivelesByEvaluacion(1);
+      setCategorias(categorias.data);
+      setPreguntas(preguntas.data);
+      setNiveles(niveles.data);
     };
     cargarDatos();
   }, [usuario.dni]);
 
-  const handleSelectNivel = (preguntaId, nivel) => {
-    setRespuestas({ ...respuestas, [preguntaId]: nivel });
+  const evaluadosConNombre = empleados.filter((e) =>
+    evaluadosAsignados.includes(e.dni)
+  );
+
+  const handleSelectNivel = (preguntaId, nivelId) => {
+    setRespuestas({ ...respuestas, [preguntaId]: nivelId });
   };
 
   const handleEnviar = async () => {
     for (const pregunta of preguntas) {
-      if (pregunta.categoria && respuestas[pregunta.id]) {
-        await enviarEvaluacion({
-          evaluador_dni: usuario.dni,
-          evaluado_dni: seleccionado,
-          categoria: pregunta.categoria,
-          nivel: respuestas[pregunta.id],
-          comentario: "",
-          fecha: new Date().toISOString().split("T")[0],
-        });
-      }
+      await enviarEvaluacion({
+        evaluador_dni: usuario.dni,
+        evaluado_dni: seleccionado,
+        evaluacion_id: 1,
+        categoria_id: pregunta.categoria_id,
+        pregunta_id: pregunta.id,
+        puntuacion: respuestas[pregunta.id],
+        fecha: new Date().toISOString().split("T")[0],
+      });
     }
     alert(t("Evaluación registrada correctamente"));
     setSeleccionado("");
@@ -59,48 +64,65 @@ const Evaluacion = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-2xl font-bold text-mia mb-4">{t("Realizar Evaluación")}</h1>
+    <div className="max-w-5xl mx-auto p-4 space-y-6">
+      <h1 className="text-2xl font-bold text-mia text-center sm:text-left">
+        {t("Realizar Evaluación")}
+      </h1>
 
       <select
         value={seleccionado}
         onChange={(e) => setSeleccionado(e.target.value)}
-        className="border p-2 rounded mb-4 w-full"
+        className="border p-2 rounded w-full sm:w-1/2"
       >
         <option value="">{t("Selecciona a quién vas a evaluar")}</option>
-        {evaluados.map((dni) => (
-          <option key={dni} value={dni}>{dni}</option>
+        {evaluadosConNombre.map((e) => (
+          <option key={e.dni} value={e.dni}>
+            {e.nombre} ({e.dni})
+          </option>
         ))}
       </select>
 
-      {categorias.map((cat) => (
-        <div key={cat.id} className="mb-6">
-          <h2 className="text-lg font-semibold text-mia mb-2">{cat.nombre}</h2>
-          {preguntas.filter((p) => p.categoria === cat.nombre).map((p) => (
-            <div key={p.id} className="mb-2">
-              <label className="block font-medium mb-1">{p.texto}</label>
-              <select
-                value={respuestas[p.id] || ""}
-                onChange={(e) => handleSelectNivel(p.id, e.target.value)}
-                className="border p-1 rounded w-full"
-              >
-                <option value="">{t("Selecciona nivel")}</option>
-                {niveles.map((n) => (
-                  <option key={n.id} value={n.nivel}>{n.nivel}</option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-      ))}
+      {seleccionado &&
+        categorias.map((cat) => (
+          <div key={cat.id} className="bg-white p-4 border rounded space-y-4">
+            <h2 className="text-lg font-semibold text-mia text-center sm:text-left">
+              {cat.nombre}
+            </h2>
+            {preguntas
+              .filter((p) => p.categoria_id === cat.id)
+              .map((p) => (
+                <div key={p.id} className="space-y-2">
+                  <p className="font-medium text-sm sm:text-base">
+                    {p.texto}
+                  </p>
+                  <div className="grid grid-cols-2 sm:flex gap-2">
+                    {niveles.map((n) => (
+                      <button
+                        key={n.id}
+                        onClick={() => handleSelectNivel(p.id, n.puntaje)}
+                        className={`px-3 py-1 rounded border text-sm sm:text-base text-center transition duration-200 ease-in-out ${
+                          respuestas[p.id] === n.puntaje
+                            ? "bg-mia text-white font-bold"
+                            : "bg-gray-100 hover:bg-mia/10"
+                        }`}
+                      >
+                        {n.nombre}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+        ))}
 
-      <button
-        onClick={handleEnviar}
-        disabled={!seleccionado || Object.keys(respuestas).length === 0}
-        className="bg-mia text-white px-6 py-2 rounded"
-      >
-        {t("Enviar evaluación")}
-      </button>
+      {seleccionado && preguntas.length > 0 && (
+        <button
+          onClick={handleEnviar}
+          className="bg-mia text-white px-6 py-2 rounded mt-4 w-full sm:w-auto"
+        >
+          {t("Enviar evaluación")}
+        </button>
+      )}
     </div>
   );
 };
