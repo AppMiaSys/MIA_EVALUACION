@@ -51,3 +51,13 @@ export const getNivelesByEvaluacion = (evaluacionId) => axios.get(`${API}/evalua
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
 export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
 export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
+
+// Sucursales
+export const getSucursales = () => axios.get(`${API}/sucursales`);
+export const addSucursal = (data) => axios.post(`${API}/sucursales`, data);
+export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
+
+// Áreas
+export const getAreas = () => axios.get(`${API}/areas`);
+export const addArea = (data) => axios.post(`${API}/areas`, data);
+export const updateArea = (data) => axios.put(`${API}/areas`, data);
