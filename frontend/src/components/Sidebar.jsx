@@ -6,38 +6,32 @@ import { BarChart2 } from "lucide-react";
 
 
 const Sidebar = () => {
-  const menu = [
-    { title: "Dashboard", to: "/dashboard" },
-    {
-      title: "Configuraciones",
-      children: [
-        { to: "/niveles-acceso", label: "Niveles de Acceso" },
-        { to: "/empleados", label: "Usuarios" },
-        { to: "/asignaciones", label: "Asignaciones" },
-        { to: "/sucursales", label: "Sucursales" }, // ✅ agregado
-        { to: "/areas", label: "Áreas" },           // ✅ agregado
-      ],
-    },
-    {
-  nombre: "Niveles de Evaluación",
-  ruta: "/niveles",
-  icono: <BarChart2 />
-},
-
-    {
-      title: "Evaluaciones",
-      children: [
-        { to: "/evaluaciones-config", label: "Configuración de evaluaciones" },
-        { to: "/categorias", label: "Categorías de preguntas" },
-        { to: "/preguntas", label: "Preguntas" },
-        { to: "/mis-evaluaciones", label: "Mis evaluaciones" },
-        { to: "/evaluar", label: "Evaluar" },
-      ],
-    },
-    { title: "Perfil", to: "/perfil" },
-    { title: "Ayuda", to: "/ayuda" },
-  ];
-
+const menu = [
+  { title: "Dashboard", to: "/dashboard" },
+  {
+    title: "Configuraciones",
+    children: [
+      { to: "/niveles-acceso", label: "Niveles de Acceso" },
+      { to: "/empleados", label: "Usuarios" },
+      { to: "/asignaciones", label: "Asignaciones" },
+      { to: "/sucursales", label: "Sucursales" },
+      { to: "/areas", label: "Áreas" },
+    ],
+  },
+  {
+    title: "Evaluaciones",
+    children: [
+      { to: "/evaluaciones-config", label: "Configuración de evaluaciones" },
+      { to: "/categorias", label: "Categorías de preguntas" },
+      { to: "/preguntas", label: "Preguntas" },
+      { to: "/niveles", label: "Niveles de Evaluación" }, // ✅ agregado correctamente aquí
+      { to: "/mis-evaluaciones", label: "Mis evaluaciones" },
+      { to: "/evaluar", label: "Evaluar" },
+    ],
+  },
+  { title: "Perfil", to: "/perfil" },
+  { title: "Ayuda", to: "/ayuda" },
+];
   return (
     <aside className="w-64 bg-white border-r p-4 space-y-2 overflow-y-auto">
       <h2 className="text-xl font-bold text-mia mb-4">Mia Evaluación</h2>
