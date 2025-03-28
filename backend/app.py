@@ -115,6 +115,25 @@ def enviar_evaluacion():
     )
     return jsonify({"status": "ok"})
 
+@app.route("/api/evaluaciones/<int:evaluacion_id>/participantes", methods=["GET"])
+def get_participantes_by_evaluacion(evaluacion_id):
+    rows = query_db("""
+        SELECT e.dni, e.nombre 
+        FROM empleados e
+        JOIN evaluaciones_participantes ep ON e.dni = ep.empleado_dni
+        WHERE ep.evaluacion_id = ?
+    """, (evaluacion_id,))
+    return jsonify([{"dni": r[0], "nombre": r[1]} for r in rows])
+
+@app.route("/api/evaluaciones/<int:evaluacion_id>/asignaciones", methods=["GET"])
+def get_asignaciones_by_evaluacion(evaluacion_id):
+    rows = query_db("""
+        SELECT evaluador_dni, evaluado_dni 
+        FROM evaluaciones_asignaciones 
+        WHERE evaluacion_id = ?
+    """, (evaluacion_id,))
+    return jsonify([{"evaluador_dni": r[0], "evaluado_dni": r[1]} for r in rows])
+
 # -----------------------------
 # EVALUACION USUARIOS
 # -----------------------------
