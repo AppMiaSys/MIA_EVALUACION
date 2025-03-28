@@ -228,8 +228,11 @@ if __name__ == "__main__":
 # -----------------------------
 @app.route("/api/sucursales", methods=["GET"])
 def get_sucursales():
-    rows = query_db("SELECT id, nombre FROM sucursales")
-    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+    try:
+        rows = query_db("SELECT id, nombre FROM sucursales")
+        return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/sucursales", methods=["POST"])
 def add_sucursal():
