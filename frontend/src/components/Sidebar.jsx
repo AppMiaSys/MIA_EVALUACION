@@ -1,26 +1,19 @@
 import {
-  ClipboardList,
+  Home,
   Settings,
-  User,
-  BarChart2,
-  CircleHelp,
   Users,
-  FileText,
-  SquareCheckBig,
-  LayoutDashboard,
-  Building2,
-  FileEdit,
-  ListChecks,
-  ScrollText,
-  CircleUserRound
-} from 'lucide-react';
-
+  ClipboardList,
+  LayoutList,
+  BookOpenCheck,
+  UserCheck,
+  BarChart2,
+  HelpCircle,
+  MapPin,
+  Layers
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { HomeIcon } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { SidebarItem } from './SidebarItem' // <== aquí podría faltar el ;
 
-const Sidebar = () => { label: "Locales y Áreas", icon: <HomeIcon />, path: "/locales-areas";
+const Sidebar = () => {
   return (
     <div className="bg-[#C10B67] text-white w-64 min-h-screen p-4 text-sm">
       <h2 className="text-xl font-bold mb-6">Mia Evaluación</h2>
@@ -70,20 +63,8 @@ const Sidebar = () => { label: "Locales y Áreas", icon: <HomeIcon />, path: "/l
           </Link>
         </li>
         <li>
-          <Link to="/mis-evaluaciones" className="flex items-center space-x-2 hover:underline">
-            <UserCheck size={18} /> <span>Mis Evaluaciones</span>
-          </Link>
-        </li>
-        <li>
-          <Link to="/evaluacion" className="flex items-center space-x-2 hover:underline">
-            <BarChart2 size={18} /> <span>Evaluar</span>
-          </Link>
-        </li>
-
-        <li className="mt-4 font-semibold">Perfil</li>
-        <li>
-          <Link to="/perfil" className="flex items-center space-x-2 hover:underline">
-            <Users size={18} /> <span>Mi Perfil</span>
+          <Link to="/niveles" className="flex items-center space-x-2 hover:underline">
+            <BarChart2 size={18} /> <span>Niveles de Evaluación</span>
           </Link>
         </li>
 
