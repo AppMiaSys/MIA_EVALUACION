@@ -1,5 +1,5 @@
 import axios from "axios";
-
+const BASE_URL = "https://mia-backend.onrender.com/api";
 const API = "https://mia-backend.onrender.com/api";
 
 // Empleados
