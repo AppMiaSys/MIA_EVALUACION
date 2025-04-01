@@ -6,6 +6,7 @@ const LocalesAreas = () => {
   const [areas, setAreas] = useState([]);
   const [nuevaSucursal, setNuevaSucursal] = useState("");
   const [nuevaArea, setNuevaArea] = useState("");
+
   useEffect(() => {
     cargarDatos();
   }, []);
@@ -14,17 +15,8 @@ const LocalesAreas = () => {
     try {
       const s = await getSucursales();
       const a = await getAreas();
-      export const getSucursales = async () => {
-      const res = await axios.get(`${API}/sucursales`);
-      return res.data;
-};
-
-export const getAreas = async () => {
-  const res = await axios.get(`${API}/areas`);
-  return res.data;
-};
-setSucursales(Array.isArray(s) ? s : []);
-setAreas(Array.isArray(a) ? a : []);
+      setSucursales(Array.isArray(s) ? s : []);
+      setAreas(Array.isArray(a) ? a : []);
     } catch (error) {
       console.error("Error al cargar datos:", error);
     }
