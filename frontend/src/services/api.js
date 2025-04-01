@@ -53,7 +53,14 @@ export const getSucursales = () => axios.get(`${API}/sucursales`);
 export const addSucursal = (data) => axios.post(`${API}/sucursales`, data);
 export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
 
+// ...
+
 // Áreas
 export const getAreas = () => axios.get(`${API}/areas`);
 export const addArea = (data) => axios.post(`${API}/areas`, data);
 export const updateArea = (data) => axios.put(`${API}/areas`, data);
+
+// ✅ Agregado
+export const deleteSucursal = (id) => axios.delete(`${API}/sucursales/${id}`);
+export const deleteArea = (id) => axios.delete(`${API}/areas/${id}`);
+
