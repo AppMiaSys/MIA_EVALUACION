@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LocalesAreas from './pages/LocalesAreas'; // o './components/LocalesAreas'
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Empleados from "./pages/Empleados";
@@ -53,6 +54,8 @@ const App = () => {
               <Route path="/areas" element={<Areas />} />           {/* ✅ nueva ruta */}
               <Route path="/ayuda" element={<Ayuda />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
+                {/* otras rutas */}
+  <Route path="/locales-areas" element={<LocalesAreas />} />
             </Routes>
           </main>
         </div>
