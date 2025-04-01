@@ -50,8 +50,8 @@ export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, d
 
 // Sucursales
 export const getSucursales = async () => {
-  const res = await axios.get(`${API}/sucursales`);
-  return res.data;  // Devolver directamente el array de sucursales (cada sucursal con id y nombre)
+  const res = await axios.get(`${BASE_URL}/sucursales`);
+  return res.data;
 };
 export const addSucursal = (data) => axios.post(`${API}/sucursales`, data);
 export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
@@ -59,8 +59,8 @@ export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
 
 // Áreas
 export const getAreas = async () => {
-  const res = await axios.get(`${API}/areas`);
-  return res.data;  // Devolver directamente el array de áreas (cada área con id y nombre)
+  const res = await axios.get(`${BASE_URL}/areas`);
+  return res.data;
 };
 export const addArea = (data) => axios.post(`${API}/areas`, data);
 export const updateArea = (data) => axios.put(`${API}/areas`, data);
