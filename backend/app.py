@@ -116,9 +116,17 @@ def get_evaluaciones():
 
 @app.route("/api/evaluaciones/nueva", methods=["POST"])
 def add_evaluacion():
-    d = request.json
-    query_db("INSERT INTO evaluaciones (nombre) VALUES (?)", (d["nombre"],))
-    return jsonify({"status": "ok"})
+    try:
+        d = request.json
+        evaluacion_id = query_db("INSERT INTO evaluaciones (nombre) VALUES (?) RETURNING id", (d["nombre"],), one=True)[0]
+        for dni in d["participantes"]:
+            query_db("INSERT INTO evaluacion_usuarios (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
+        for pregunta_id in d["preguntas"]:
+            query_db("INSERT INTO evaluacion_preguntas (evaluacion_id, pregunta_id) VALUES (?, ?)", (evaluacion_id, pregunta_id))
+        return jsonify({"status": "ok", "evaluacion_id": evaluacion_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/evaluaciones", methods=["POST"])
 def enviar_evaluacion():
