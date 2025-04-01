@@ -1,97 +1,91 @@
 import React, { useEffect, useState } from "react";
-import { getSucursales, addSucursal, updateSucursal, getAreas, addArea, updateArea } from "../services/api";
-import { useTranslation } from "react-i18next";
-import Sucursales from './Sucursales';
-import Areas from './Areas';
+import { getSucursales, getAreas, addSucursal, addArea } from "../services/api";
 
 const LocalesAreas = () => {
-  return (
-    <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-center">Locales y Áreas</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white shadow p-4 rounded-xl">
-          <h2 className="text-lg font-semibold mb-4">Sucursales</h2>
-          <Sucursales />
-        </div>
-
-        <div className="bg-white shadow p-4 rounded-xl">
-          <h2 className="text-lg font-semibold mb-4">Áreas</h2>
-          <Areas />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-  const cargarDatos = async () => {
-    const [resSucursales, resAreas] = await Promise.all([
-      getSucursales(),
-      getAreas(),
-    ]);
-    setSucursales(resSucursales.data);
-    setAreas(resAreas.data);
-  };
-
-  const guardarSucursal = async () => {
-    if (!sucursalNombre.trim()) return;
-    await addSucursal({ nombre: sucursalNombre });
-    setSucursalNombre("");
-    cargarDatos();
-  };
-
-  const guardarArea = async () => {
-    if (!areaNombre.trim()) return;
-    await addArea({ nombre: areaNombre });
-    setAreaNombre("");
-    cargarDatos();
-  };
+  const [sucursales, setSucursales] = useState([]);
+  const [areas, setAreas] = useState([]);
+  const [nuevaSucursal, setNuevaSucursal] = useState("");
+  const [nuevaArea, setNuevaArea] = useState("");
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
-  return (
-    <div className="max-w-6xl mx-auto p-4 space-y-8">
-      <h1 className="text-2xl font-bold text-mia">{t("Locales y Áreas")}</h1>
+  const cargarDatos = async () => {
+    try {
+      const s = await getSucursales();
+      const a = await getAreas();
+      setSucursales(s);
+      setAreas(a);
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    }
+  };
 
+  const guardarSucursal = async () => {
+    if (!nuevaSucursal) return;
+    await addSucursal({ nombre: nuevaSucursal });
+    setNuevaSucursal("");
+    cargarDatos();
+  };
+
+  const guardarArea = async () => {
+    if (!nuevaArea) return;
+    await addArea({ nombre: nuevaArea });
+    setNuevaArea("");
+    cargarDatos();
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Locales y Áreas</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Sucursales */}
         <div>
-          <h2 className="text-lg font-semibold">{t("Sucursales")}</h2>
-          <div className="flex gap-2 mb-2">
+          <h3 className="text-lg font-semibold mb-2">Sucursales</h3>
+          <div className="flex space-x-2 mb-4">
             <input
-              value={sucursalNombre}
-              onChange={(e) => setSucursalNombre(e.target.value)}
-              placeholder={t("Nueva sucursal")}
-              className="border p-2 rounded w-full"
+              type="text"
+              placeholder="Nueva sucursal"
+              value={nuevaSucursal}
+              onChange={(e) => setNuevaSucursal(e.target.value)}
+              className="border p-2 flex-1"
             />
-            <button onClick={guardarSucursal} className="bg-mia text-white px-4 rounded">
-              {t("Agregar")}
+            <button
+              onClick={guardarSucursal}
+              className="bg-[#C10B67] text-white px-4 py-2 rounded"
+            >
+              Guardar
             </button>
           </div>
-          <ul className="divide-y bg-white rounded shadow">
+          <ul className="list-disc list-inside">
             {sucursales.map((s) => (
-              <li key={s.id} className="p-2">{s.nombre}</li>
+              <li key={s.id}>{s.nombre}</li>
             ))}
           </ul>
         </div>
 
+        {/* Áreas */}
         <div>
-          <h2 className="text-lg font-semibold">{t("Áreas")}</h2>
-          <div className="flex gap-2 mb-2">
+          <h3 className="text-lg font-semibold mb-2">Áreas</h3>
+          <div className="flex space-x-2 mb-4">
             <input
-              value={areaNombre}
-              onChange={(e) => setAreaNombre(e.target.value)}
-              placeholder={t("Nueva área")}
-              className="border p-2 rounded w-full"
+              type="text"
+              placeholder="Nueva área"
+              value={nuevaArea}
+              onChange={(e) => setNuevaArea(e.target.value)}
+              className="border p-2 flex-1"
             />
-            <button onClick={guardarArea} className="bg-mia text-white px-4 rounded">
-              {t("Agregar")}
+            <button
+              onClick={guardarArea}
+              className="bg-[#C10B67] text-white px-4 py-2 rounded"
+            >
+              Guardar
             </button>
           </div>
-          <ul className="divide-y bg-white rounded shadow">
+          <ul className="list-disc list-inside">
             {areas.map((a) => (
-              <li key={a.id} className="p-2">{a.nombre}</li>
+              <li key={a.id}>{a.nombre}</li>
             ))}
           </ul>
         </div>
