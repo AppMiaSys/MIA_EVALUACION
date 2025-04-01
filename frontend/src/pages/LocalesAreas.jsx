@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { getSucursales, addSucursal, updateSucursal, getAreas, addArea, updateArea } from "../services/api";
 import { useTranslation } from "react-i18next";
+import Sucursales from './Sucursales';
+import Areas from './Areas';
 
 const LocalesAreas = () => {
-  const { t } = useTranslation();
-  const [sucursales, setSucursales] = useState([]);
-  const [areas, setAreas] = useState([]);
-  const [sucursalNombre, setSucursalNombre] = useState("");
-  const [areaNombre, setAreaNombre] = useState("");
+  return (
+    <div className="p-4 grid md:grid-cols-2 gap-4">
+      <div>
+        <h2 className="text-lg font-bold mb-2">Sucursales</h2>
+        <Sucursales />
+      </div>
+      <div>
+        <h2 className="text-lg font-bold mb-2">Áreas</h2>
+        <Areas />
+      </div>
+    </div>
+  );
+};
 
   const cargarDatos = async () => {
     const [resSucursales, resAreas] = await Promise.all([
