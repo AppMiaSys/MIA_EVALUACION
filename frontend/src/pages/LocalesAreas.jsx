@@ -1,92 +1,88 @@
-import React, { useEffect, useState } from "react";
-import { getSucursales, getAreas, addSucursal, addArea } from "../services/api";
+import React, { useState, useEffect } from 'react';
+import { getSucursales, addSucursal, getAreas, addArea } from '../services/api';
 
 const LocalesAreas = () => {
   const [sucursales, setSucursales] = useState([]);
   const [areas, setAreas] = useState([]);
-  const [nuevaSucursal, setNuevaSucursal] = useState("");
-  const [nuevaArea, setNuevaArea] = useState("");
+  const [nuevaSucursal, setNuevaSucursal] = useState('');
+  const [nuevaArea, setNuevaArea] = useState('');
+
+  const cargarDatos = async () => {
+    try {
+      const [sucursalesRes, areasRes] = await Promise.all([getSucursales(), getAreas()]);
+      setSucursales(sucursalesRes || []);
+      setAreas(areasRes || []);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+    }
+  };
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
-  const cargarDatos = async () => {
-    try {
-      const s = await getSucursales();
-      const a = await getAreas();
-      setSucursales(Array.isArray(s) ? s : []);
-      setAreas(Array.isArray(a) ? a : []);
-    } catch (error) {
-      console.error("Error al cargar datos:", error);
-    }
-  };
-
-  const guardarSucursal = async () => {
-    if (!nuevaSucursal) return;
+  const agregarSucursal = async () => {
+    if (!nuevaSucursal.trim()) return;
     await addSucursal({ nombre: nuevaSucursal });
-    setNuevaSucursal("");
+    setNuevaSucursal('');
     cargarDatos();
   };
 
-  const guardarArea = async () => {
-    if (!nuevaArea) return;
+  const agregarArea = async () => {
+    if (!nuevaArea.trim()) return;
     await addArea({ nombre: nuevaArea });
-    setNuevaArea("");
+    setNuevaArea('');
     cargarDatos();
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Locales y Áreas</h2>
+      <h2 className="text-xl font-bold mb-4">Mantenedor de Locales y Áreas</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Sucursales */}
         <div>
           <h3 className="text-lg font-semibold mb-2">Sucursales</h3>
-          <div className="flex space-x-2 mb-4">
+          <div className="flex gap-2 mb-4">
             <input
-              type="text"
-              placeholder="Nueva sucursal"
               value={nuevaSucursal}
               onChange={(e) => setNuevaSucursal(e.target.value)}
-              className="border p-2 flex-1"
+              placeholder="Nueva sucursal"
+              className="border px-2 py-1 flex-1"
             />
-            <button
-              onClick={guardarSucursal}
-              className="bg-[#C10B67] text-white px-4 py-2 rounded"
-            >
-              Guardar
+            <button onClick={agregarSucursal} className="bg-blue-600 text-white px-3 py-1 rounded">
+              Agregar
             </button>
           </div>
-          <ul className="list-disc list-inside">
-            {sucursales.map((s) => (
-              <li key={s.id}>{s.nombre}</li>
-            ))}
+          <ul className="list-disc pl-5">
+            {sucursales.length > 0 ? (
+              sucursales.map((s, i) => <li key={i}>{s.nombre}</li>)
+            ) : (
+              <li className="text-gray-500">No hay sucursales registradas</li>
+            )}
           </ul>
         </div>
 
         {/* Áreas */}
         <div>
           <h3 className="text-lg font-semibold mb-2">Áreas</h3>
-          <div className="flex space-x-2 mb-4">
+          <div className="flex gap-2 mb-4">
             <input
-              type="text"
-              placeholder="Nueva área"
               value={nuevaArea}
               onChange={(e) => setNuevaArea(e.target.value)}
-              className="border p-2 flex-1"
+              placeholder="Nueva área"
+              className="border px-2 py-1 flex-1"
             />
-            <button
-              onClick={guardarArea}
-              className="bg-[#C10B67] text-white px-4 py-2 rounded"
-            >
-              Guardar
+            <button onClick={agregarArea} className="bg-green-600 text-white px-3 py-1 rounded">
+              Agregar
             </button>
           </div>
-          <ul className="list-disc list-inside">
-            {areas.map((a) => (
-              <li key={a.id}>{a.nombre}</li>
-            ))}
+          <ul className="list-disc pl-5">
+            {areas.length > 0 ? (
+              areas.map((a, i) => <li key={i}>{a.nombre}</li>)
+            ) : (
+              <li className="text-gray-500">No hay áreas registradas</li>
+            )}
           </ul>
         </div>
       </div>
