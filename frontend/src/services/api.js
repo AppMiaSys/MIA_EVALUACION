@@ -9,7 +9,8 @@ export const updateEmpleado = (data) => axios.put(`${API}/empleados`, data);
 
 // Asignaciones
 export const getAsignaciones = (dni) => axios.get(`${API}/asignaciones/${dni}`);
-export const asignarEvaluados = (data) => axios.post(`${API}/asignaciones`, data);
+import { asignarEvaluados } from "../services/api";
+export const postAsignaciones = (data) => axios.post(`${API}/asignaciones`, data);
 
 // Niveles de acceso
 export const getNivelesAcceso = () => axios.get(`${API}/niveles-acceso`);
