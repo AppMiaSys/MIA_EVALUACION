@@ -22,8 +22,19 @@ const Empleados = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
-    cargarTodo();
-  }, []);
+  const fetchData = async () => {
+    try {
+      const suc = await getSucursales();
+      const ar = await getAreas();
+      setSucursales(suc);
+      setAreas(ar);
+    } catch (error) {
+      console.error("Error cargando sucursales/áreas:", error);
+    }
+  };
+
+  if (popupVisible) fetchData(); // Solo si está visible
+}, [popupVisible]);
 
   const cargarTodo = async () => {
     try {
@@ -77,19 +88,19 @@ console.log("✅ Sucursales:", resSucursales.data);
             <input type="text" placeholder="DNI" value={nuevo.dni} onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Nombre" value={nuevo.nombre} onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} className="border p-2 rounded w-full" />
 
-            <select value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
-              <option value="">{t("Selecciona una sucursal")}</option>
-              {Array.isArray(sucursales) && sucursales.map((s) => (
-                <option key={s.id} value={s.nombre}>{s.nombre}</option>
-              ))}
-            </select>
+<select value={formData.sucursal} onChange={e => setFormData({ ...formData, sucursal: e.target.value })}>
+  <option value="">Seleccione una</option>
+  {sucursales.map(s => (
+    <option key={s.id} value={s.nombre}>{s.nombre}</option>
+  ))}
+</select>
 
-            <select value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
-              <option value="">{t("Selecciona un área")}</option>
-              {Array.isArray(areas) && areas.map((a) => (
-                <option key={a.id} value={a.nombre}>{a.nombre}</option>
-              ))}
-            </select>
+<select value={formData.area} onChange={e => setFormData({ ...formData, area: e.target.value })}>
+  <option value="">Seleccione una</option>
+  {areas.map(a => (
+    <option key={a.id} value={a.nombre}>{a.nombre}</option>
+  ))}
+</select>
 
             <input type="password" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
 
