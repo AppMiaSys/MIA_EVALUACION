@@ -1,5 +1,3 @@
-// ✅ src/services/api.js actualizado con funciones adicionales para evaluaciones
-
 import axios from "axios";
 
 const API = "https://mia-backend.onrender.com/api";
@@ -27,25 +25,22 @@ export const obtenerEvaluadosPorEvaluacion = (evaluacionId) =>
 // Categorías
 export const getCategorias = () => axios.get(`${API}/categorias`);
 export const addCategoria = (data) => axios.post(`${API}/categorias`, data);
-export const getCategoriasByEvaluacion = (evaluacionId) => axios.get(`${API}/evaluaciones/${evaluacionId}/categorias`);
+export const getCategoriasByEvaluacion = (evaluacionId) =>
+  axios.get(`${API}/evaluaciones/${evaluacionId}/categorias`);
 
 // Preguntas
 export const getPreguntas = () => axios.get(`${API}/preguntas`);
 export const addPregunta = (data) => axios.post(`${API}/preguntas`, data);
 export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
-export const getPreguntasByEvaluacion = (evaluacionId) => {
-  console.log("Cargando preguntas para evaluación:", evaluacionId);
-  return axios.get(`${API}/evaluaciones/${evaluacionId}/preguntas`);
-};
+export const getPreguntasByEvaluacion = (evaluacionId) =>
+  axios.get(`${API}/evaluaciones/${evaluacionId}/preguntas`);
 
 // Niveles de calificación
-export const getNiveles = () => {
-  console.log("Obteniendo niveles de calificación desde el backend...");
-  return axios.get(`${API}/niveles`);
-};
+export const getNiveles = () => axios.get(`${API}/niveles`);
 export const addNivel = (data) => axios.post(`${API}/niveles`, data);
 export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
-export const getNivelesByEvaluacion = (evaluacionId) => axios.get(`${API}/evaluaciones/${evaluacionId}/niveles`);
+export const getNivelesByEvaluacion = (evaluacionId) =>
+  axios.get(`${API}/evaluaciones/${evaluacionId}/niveles`);
 
 // Evaluaciones
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
