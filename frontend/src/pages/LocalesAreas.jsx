@@ -3,8 +3,26 @@ import { getSucursales, addSucursal, updateSucursal, getAreas, addArea, updateAr
 import { useTranslation } from "react-i18next";
 import Sucursales from './Sucursales';
 import Areas from './Areas';
+import {
+  ClipboardList,
+  Settings,
+  User,
+  BarChart2,
+  CircleHelp,
+  Users,
+  FileText,
+  SquareCheckBig,
+  LayoutDashboard,
+  Building2,
+  FileEdit,
+  ListChecks,
+  ScrollText,
+  CircleUserRound
+} from 'lucide-react';
 
-const LocalesAreas = () => {
+
+
+const LocalesAreas = () => {;
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold text-center">Locales y Áreas</h1>
