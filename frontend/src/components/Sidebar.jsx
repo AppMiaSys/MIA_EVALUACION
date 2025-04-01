@@ -1,4 +1,20 @@
-import { Home, Settings, Users, ClipboardList, LayoutList, BookOpenCheck, UserCheck, BarChart2, HelpCircle, MapPin, Layers } from "lucide-react";
+import {
+  ClipboardList,
+  Settings,
+  User,
+  BarChart2,
+  CircleHelp,
+  Users,
+  FileText,
+  SquareCheckBig,
+  LayoutDashboard,
+  Building2,
+  FileEdit,
+  ListChecks,
+  ScrollText,
+  CircleUserRound
+} from 'lucide-react';
+
 import { Link } from "react-router-dom";
 import { HomeIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
