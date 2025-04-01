@@ -207,10 +207,14 @@ def get_preguntas_by_evaluacion(evaluacion_id):
 # -----------------------------
 # NIVELES DE CALIFICACION
 # -----------------------------
-@app.route("/api/niveles", methods=["GET"])
-def get_niveles():
-    rows = query_db("SELECT id, nombre, puntaje FROM niveles")
-    return jsonify([{"id": r[0], "nombre": r[1], "puntaje": r[2]} for r in rows])
+@app.route("/api/niveles", methods=["POST"])
+def add_nivel():
+    try:
+        d = request.json
+        query_db("INSERT INTO niveles (nombre, puntaje) VALUES (?, ?)", (d["nombre"], d["puntaje"]))
+        return jsonify({"status": "ok"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/niveles", methods=["POST"])
 def add_nivel():
