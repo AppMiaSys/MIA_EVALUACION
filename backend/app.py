@@ -183,6 +183,19 @@ def get_categorias_by_evaluacion(evaluacion_id):
     rows = query_db("SELECT id, nombre FROM categorias WHERE evaluacion_id = ?", (evaluacion_id,))
     return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
 
+@app.route("/api/preguntas/con-categorias", methods=["GET"])
+def get_preguntas_con_categorias():
+    try:
+        rows = query_db("""
+            SELECT p.id, p.texto, c.id as categoria_id, c.nombre as categoria_nombre
+            FROM preguntas p
+            JOIN categorias c ON p.categoria_id = c.id
+        """)
+        return jsonify([{"id": r[0], "texto": r[1], "categoria": {"id": r[2], "nombre": r[3]}} for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # -----------------------------
 # PREGUNTAS
 # -----------------------------
