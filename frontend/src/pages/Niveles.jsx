@@ -1,5 +1,3 @@
-// ✅ src/pages/Niveles.jsx
-
 import React, { useEffect, useState } from "react";
 import { getNiveles, addNivel, updateNivel } from "../services/api";
 import { useTranslation } from "react-i18next";
@@ -7,7 +5,7 @@ import { useTranslation } from "react-i18next";
 const Niveles = () => {
   const { t } = useTranslation();
   const [niveles, setNiveles] = useState([]);
-  const [nuevoNivel, setNuevoNivel] = useState({ nivel: "", puntos: "" });
+  const [nuevoNivel, setNuevoNivel] = useState({ nombre: "", puntaje: "" });
   const [editando, setEditando] = useState(null);
 
   useEffect(() => {
@@ -15,21 +13,33 @@ const Niveles = () => {
   }, []);
 
   const cargarNiveles = async () => {
-    const res = await getNiveles();
-    setNiveles(Array.isArray(res.data) ? res.data : []);
+    try {
+      const res = await getNiveles();
+      setNiveles(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error al cargar niveles:", error);
+    }
   };
 
   const handleAdd = async () => {
-    if (!nuevoNivel.nivel || !nuevoNivel.puntos) return;
-    await addNivel(nuevoNivel);
-    setNuevoNivel({ nivel: "", puntos: "" });
-    cargarNiveles();
+    if (!nuevoNivel.nombre || !nuevoNivel.puntaje) return;
+    try {
+      await addNivel(nuevoNivel);
+      setNuevoNivel({ nombre: "", puntaje: "" });
+      cargarNiveles();
+    } catch (error) {
+      console.error("Error al agregar nivel:", error);
+    }
   };
 
   const handleUpdate = async () => {
-    await updateNivel(editando);
-    setEditando(null);
-    cargarNiveles();
+    try {
+      await updateNivel(editando);
+      setEditando(null);
+      cargarNiveles();
+    } catch (error) {
+      console.error("Error al actualizar nivel:", error);
+    }
   };
 
   return (
@@ -39,16 +49,16 @@ const Niveles = () => {
       <div className="flex flex-wrap gap-2">
         <input
           type="text"
-          placeholder={t("Nivel")}
-          value={nuevoNivel.nivel}
-          onChange={(e) => setNuevoNivel({ ...nuevoNivel, nivel: e.target.value })}
+          placeholder={t("Nombre del Nivel")}
+          value={nuevoNivel.nombre}
+          onChange={(e) => setNuevoNivel({ ...nuevoNivel, nombre: e.target.value })}
           className="border p-1 rounded"
         />
         <input
           type="number"
-          placeholder={t("Puntos")}
-          value={nuevoNivel.puntos}
-          onChange={(e) => setNuevoNivel({ ...nuevoNivel, puntos: e.target.value })}
+          placeholder={t("Puntaje")}
+          value={nuevoNivel.puntaje}
+          onChange={(e) => setNuevoNivel({ ...nuevoNivel, puntaje: e.target.value })}
           className="border p-1 rounded w-24"
         />
         <button onClick={handleAdd} className="bg-mia text-white px-4 rounded">
@@ -60,7 +70,7 @@ const Niveles = () => {
         {niveles.map((n) => (
           <li key={n.id} className="p-2 flex justify-between items-center">
             <span>
-              <strong>{n.nivel}</strong> – {n.puntos} pts
+              <strong>{n.nombre}</strong> – {n.puntaje} pts
             </span>
             <button
               onClick={() => setEditando(n)}
@@ -77,14 +87,14 @@ const Niveles = () => {
           <h3 className="font-medium mb-2">{t("Editar Nivel")}</h3>
           <input
             type="text"
-            value={editando.nivel}
-            onChange={(e) => setEditando({ ...editando, nivel: e.target.value })}
+            value={editando.nombre}
+            onChange={(e) => setEditando({ ...editando, nombre: e.target.value })}
             className="border p-1 m-1 rounded"
           />
           <input
             type="number"
-            value={editando.puntos}
-            onChange={(e) => setEditando({ ...editando, puntos: e.target.value })}
+            value={editando.puntaje}
+            onChange={(e) => setEditando({ ...editando, puntaje: e.target.value })}
             className="border p-1 m-1 rounded w-24"
           />
           <button
@@ -100,3 +110,4 @@ const Niveles = () => {
 };
 
 export default Niveles;
+
