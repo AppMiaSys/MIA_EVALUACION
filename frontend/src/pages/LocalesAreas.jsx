@@ -15,8 +15,17 @@ const LocalesAreas = () => {
     try {
       const s = await getSucursales();
       const a = await getAreas();
-      setSucursales(s);
-      setAreas(a);
+      export const getSucursales = async () => {
+  const res = await axios.get(`${API}/sucursales`);
+  return res.data;
+};
+
+export const getAreas = async () => {
+  const res = await axios.get(`${API}/areas`);
+  return res.data;
+};
+setSucursales(Array.isArray(s) ? s : []);
+setAreas(Array.isArray(a) ? a : []);
     } catch (error) {
       console.error("Error al cargar datos:", error);
     }
