@@ -33,15 +33,16 @@ const Empleados = () => {
         getSucursales(),
         getAreas(),
       ]);
-
+console.log("✅ Sucursales:", resSucursales.data);
+    console.log("✅ Áreas:", resAreas.data);
       setEmpleados(resEmpleados?.data || []);
       setNiveles(resNiveles?.data || []);
       setSucursales(resSucursales?.data || []);
       setAreas(resAreas?.data || []);
     } catch (error) {
-      console.error("Error cargando datos:", error);
-    }
-  };
+    console.error("❌ Error cargando datos:", error);
+  }
+};
 
   const guardar = async () => {
     if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
