@@ -3,24 +3,6 @@ import { getSucursales, addSucursal, updateSucursal, getAreas, addArea, updateAr
 import { useTranslation } from "react-i18next";
 import Sucursales from './Sucursales';
 import Areas from './Areas';
-import {
-  ClipboardList,
-  Settings,
-  User,
-  BarChart2,
-  CircleHelp,
-  Users,
-  FileText,
-  SquareCheckBig,
-  LayoutDashboard,
-  Building2,
-  FileEdit,
-  ListChecks,
-  ScrollText,
-  CircleUserRound
-} from 'lucide-react';
-
-
 
 const LocalesAreas = () => {;
   return (
