@@ -1,7 +1,7 @@
 import { Home, Settings, Users, ClipboardList, LayoutList, BookOpenCheck, UserCheck, BarChart2, HelpCircle, MapPin, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = () => { label: "Locales y Áreas", icon: <HomeIcon />, path: "/locales-areas"
   return (
     <div className="bg-[#C10B67] text-white w-64 min-h-screen p-4 text-sm">
       <h2 className="text-xl font-bold mb-6">Mia Evaluación</h2>
