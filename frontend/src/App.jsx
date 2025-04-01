@@ -60,6 +60,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/locales-areas" element={<LocalesAreas />} />
+
         </Routes>
       )}
     </Router>
