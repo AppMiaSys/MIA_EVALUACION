@@ -303,6 +303,11 @@ def update_sucursal():
     query_db("UPDATE sucursales SET nombre = ? WHERE id = ?", (d["nombre"], d["id"]))
     return jsonify({"status": "updated"})
 
+@app.route("/api/sucursales/<int:id>", methods=["DELETE"])
+def delete_sucursal(id):
+    query_db("DELETE FROM sucursales WHERE id = ?", (id,))
+    return jsonify({"status": "deleted"})
+
 # -----------------------------
 # AREAS
 # -----------------------------
@@ -322,3 +327,9 @@ def update_area():
     d = request.json
     query_db("UPDATE areas SET nombre = ? WHERE id = ?", (d["nombre"], d["id"]))
     return jsonify({"status": "updated"})
+    
+@app.route("/api/areas/<int:id>", methods=["DELETE"])
+def delete_area(id):
+    query_db("DELETE FROM areas WHERE id = ?", (id,))
+    return jsonify({"status": "deleted"})
+
