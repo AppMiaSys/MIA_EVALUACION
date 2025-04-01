@@ -1,4 +1,4 @@
-// ✅ src/pages/Empleados.jsx con integración dinámica de niveles de acceso, sucursales y áreas
+// ✅ src/pages/Empleados.jsx con validación de datos cargados
 
 import React, { useEffect, useState } from "react";
 import {
@@ -22,30 +22,25 @@ const Empleados = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
-    cargar();
-    cargarNiveles();
-    cargarSucursales();
-    cargarAreas();
+    cargarTodo();
   }, []);
 
-  const cargar = async () => {
-    const res = await getEmpleados();
-    setEmpleados(res.data);
-  };
+  const cargarTodo = async () => {
+    try {
+      const [resEmpleados, resNiveles, resSucursales, resAreas] = await Promise.all([
+        getEmpleados(),
+        getNivelesAcceso(),
+        getSucursales(),
+        getAreas(),
+      ]);
 
-  const cargarNiveles = async () => {
-    const res = await getNivelesAcceso();
-    setNiveles(res.data);
-  };
-
-  const cargarSucursales = async () => {
-    const res = await getSucursales();
-    setSucursales(res.data);
-  };
-
-  const cargarAreas = async () => {
-    const res = await getAreas();
-    setAreas(res.data);
+      setEmpleados(resEmpleados?.data || []);
+      setNiveles(resNiveles?.data || []);
+      setSucursales(resSucursales?.data || []);
+      setAreas(resAreas?.data || []);
+    } catch (error) {
+      console.error("Error cargando datos:", error);
+    }
   };
 
   const guardar = async () => {
@@ -53,27 +48,25 @@ const Empleados = () => {
     await addEmpleado(nuevo);
     setNuevo({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
     setMostrarFormulario(false);
-    await cargar();
+    await cargarTodo();
   };
 
   const guardarEdicion = async () => {
     await updateEmpleado(editando);
     setEditando(null);
-    await cargar();
+    await cargarTodo();
   };
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-mia">{t("Usuarios")}</h1>
-        {empleados.length > 0 && (
-          <button
-            onClick={() => setMostrarFormulario(true)}
-            className="bg-mia text-white px-4 py-2 rounded"
-          >
-            {t("Nuevo")}
-          </button>
-        )}
+        <button
+          onClick={() => setMostrarFormulario(true)}
+          className="bg-mia text-white px-4 py-2 rounded"
+        >
+          {t("Nuevo")}
+        </button>
       </div>
 
       {mostrarFormulario && (
@@ -85,14 +78,14 @@ const Empleados = () => {
 
             <select value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona una sucursal")}</option>
-              {sucursales.map((s) => (
+              {Array.isArray(sucursales) && sucursales.map((s) => (
                 <option key={s.id} value={s.nombre}>{s.nombre}</option>
               ))}
             </select>
 
             <select value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona un área")}</option>
-              {areas.map((a) => (
+              {Array.isArray(areas) && areas.map((a) => (
                 <option key={a.id} value={a.nombre}>{a.nombre}</option>
               ))}
             </select>
@@ -101,10 +94,11 @@ const Empleados = () => {
 
             <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona un nivel")}</option>
-              {niveles.map((n) => (
+              {Array.isArray(niveles) && niveles.map((n) => (
                 <option key={n.id} value={n.id}>{n.nombre}</option>
               ))}
             </select>
+
             <div className="flex justify-end gap-2">
               <button onClick={() => setMostrarFormulario(false)} className="text-gray-600 hover:underline">{t("Cancelar")}</button>
               <button onClick={guardar} className="bg-mia text-white px-4 py-2 rounded">{t("Guardar")}</button>
@@ -120,14 +114,14 @@ const Empleados = () => {
 
           <select value={editando.sucursal} onChange={(e) => setEditando({ ...editando, sucursal: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona una sucursal")}</option>
-            {sucursales.map((s) => (
+            {Array.isArray(sucursales) && sucursales.map((s) => (
               <option key={s.id} value={s.nombre}>{s.nombre}</option>
             ))}
           </select>
 
           <select value={editando.area} onChange={(e) => setEditando({ ...editando, area: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona un área")}</option>
-            {areas.map((a) => (
+            {Array.isArray(areas) && areas.map((a) => (
               <option key={a.id} value={a.nombre}>{a.nombre}</option>
             ))}
           </select>
@@ -136,10 +130,11 @@ const Empleados = () => {
 
           <select value={editando.nivel_acceso} onChange={(e) => setEditando({ ...editando, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona un nivel")}</option>
-            {niveles.map((n) => (
+            {Array.isArray(niveles) && niveles.map((n) => (
               <option key={n.id} value={n.id}>{n.nombre}</option>
             ))}
           </select>
+
           <button onClick={guardarEdicion} className="bg-mia text-white px-4 py-2 rounded">{t("Guardar cambios")}</button>
         </div>
       )}
