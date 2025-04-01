@@ -194,6 +194,10 @@ def get_preguntas_by_evaluacion(evaluacion_id):
     rows = query_db("SELECT id, texto, categoria_id FROM preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
     return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
 
+@app.route("/api/evaluaciones/<int:evaluacion_id>/preguntas", methods=["GET"])
+def get_preguntas_by_evaluacion(evaluacion_id):
+    rows = query_db("SELECT id, texto, categoria_id FROM preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
+    return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
 
 # -----------------------------
 # NIVELES DE CALIFICACION
