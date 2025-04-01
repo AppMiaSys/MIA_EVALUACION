@@ -189,10 +189,19 @@ def update_pregunta():
     query_db("UPDATE preguntas SET texto = ?, categoria_id = ? WHERE id = ?", (d["texto"], d["categoria_id"], d["id"]))
     return jsonify({"status": "updated"})
 
-@app.route("/api/preguntas/<evaluacion_id>", methods=["GET"])
+@app.route("/api/evaluaciones/<int:evaluacion_id>/preguntas", methods=["GET"])
 def get_preguntas_by_evaluacion(evaluacion_id):
-    rows = query_db("SELECT id, texto, categoria_id FROM preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
-    return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
+    try:
+        rows = query_db("""
+            SELECT p.id, p.texto, p.categoria_id
+            FROM preguntas p
+            JOIN categorias c ON p.categoria_id = c.id
+            WHERE c.evaluacion_id = ?
+        """, (evaluacion_id,))
+        return jsonify([{"id": r[0], "texto": r[1], "categoria_id": r[2]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 
 # -----------------------------
