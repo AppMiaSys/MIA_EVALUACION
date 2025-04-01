@@ -6,18 +6,24 @@ import Areas from './Areas';
 
 const LocalesAreas = () => {
   return (
-    <div className="p-4 grid md:grid-cols-2 gap-4">
-      <div>
-        <h2 className="text-lg font-bold mb-2">Sucursales</h2>
-        <Sucursales />
-      </div>
-      <div>
-        <h2 className="text-lg font-bold mb-2">Áreas</h2>
-        <Areas />
+    <div className="p-4 space-y-6">
+      <h1 className="text-2xl font-bold text-center">Locales y Áreas</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white shadow p-4 rounded-xl">
+          <h2 className="text-lg font-semibold mb-4">Sucursales</h2>
+          <Sucursales />
+        </div>
+
+        <div className="bg-white shadow p-4 rounded-xl">
+          <h2 className="text-lg font-semibold mb-4">Áreas</h2>
+          <Areas />
+        </div>
       </div>
     </div>
   );
 };
+
 
   const cargarDatos = async () => {
     const [resSucursales, resAreas] = await Promise.all([
