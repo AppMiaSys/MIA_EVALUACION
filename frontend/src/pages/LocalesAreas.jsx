@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import Sucursales from './Sucursales';
 import Areas from './Areas';
 
-const LocalesAreas = () => {;
+const LocalesAreas = () => {
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold text-center">Locales y Áreas</h1>
@@ -23,7 +23,6 @@ const LocalesAreas = () => {;
     </div>
   );
 };
-
 
   const cargarDatos = async () => {
     const [resSucursales, resAreas] = await Promise.all([
