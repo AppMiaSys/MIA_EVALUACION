@@ -77,10 +77,24 @@ def update_nivel_acceso():
 # -----------------------------
 # ASIGNACIONES
 # -----------------------------
-@app.route("/api/asignaciones/<dni>", methods=["GET"])
-def get_asignaciones_por_evaluador(dni):
-    rows = query_db("SELECT evaluado_dni FROM asignaciones WHERE evaluador_dni = ?", (dni,))
-    return jsonify([r[0] for r in rows])
+@app.route("/api/empleados/asignaciones", methods=["GET"])
+def get_empleados_con_asignaciones():
+    try:
+        rows = query_db("""
+            SELECT e.dni, e.nombre, a.evaluador_dni
+            FROM empleados e
+            LEFT JOIN asignaciones a ON e.dni = a.evaluado_dni
+        """)
+        empleados = {}
+        for r in rows:
+            dni, nombre, evaluador_dni = r
+            if dni not in empleados:
+                empleados[dni] = {"dni": dni, "nombre": nombre, "asignaciones": []}
+            if evaluador_dni:
+                empleados[dni]["asignaciones"].append(evaluador_dni)
+        return jsonify(list(empleados.values()))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/asignaciones", methods=["POST"])
 def post_asignaciones():
