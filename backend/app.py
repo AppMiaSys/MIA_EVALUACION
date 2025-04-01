@@ -203,10 +203,17 @@ def get_preguntas_by_evaluacion(evaluacion_id):
         return jsonify({"error": str(e)}), 500
 
 
+# -----------------------------
+# NIVELES DE CALIFICACIÓN
+# -----------------------------
+@app.route("/api/niveles", methods=["GET"])
+def get_niveles():
+    try:
+        rows = query_db("SELECT id, nombre, puntaje FROM niveles")
+        return jsonify([{"id": r[0], "nombre": r[1], "puntaje": r[2]} for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# -----------------------------
-# NIVELES DE CALIFICACION
-# -----------------------------
 @app.route("/api/niveles", methods=["POST"])
 def add_nivel():
     try:
@@ -216,17 +223,14 @@ def add_nivel():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/niveles", methods=["POST"])
-def add_nivel():
-    d = request.json
-    query_db("INSERT INTO niveles (nombre, puntaje) VALUES (?, ?)", (d["nombre"], d["puntaje"]))
-    return jsonify({"status": "ok"})
-
 @app.route("/api/niveles", methods=["PUT"])
 def update_nivel():
-    d = request.json
-    query_db("UPDATE niveles SET nombre = ?, puntaje = ? WHERE id = ?", (d["nombre"], d["puntaje"], d["id"]))
-    return jsonify({"status": "updated"})
+    try:
+        d = request.json
+        query_db("UPDATE niveles SET nombre = ?, puntaje = ? WHERE id = ?", (d["nombre"], d["puntaje"], d["id"]))
+        return jsonify({"status": "updated"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/evaluaciones/<int:evaluacion_id>/niveles", methods=["GET"])
 def get_niveles_by_evaluacion(evaluacion_id):
