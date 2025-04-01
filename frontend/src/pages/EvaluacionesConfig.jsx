@@ -1,115 +1,152 @@
-// ✅ src/pages/EvaluacionesConfig.jsx
-
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   getEvaluaciones,
   addEvaluacion,
-  getCategoriasByEvaluacion,
-  getPreguntasByEvaluacion,
-  getNivelesByEvaluacion
+  getEmpleados,
+  getPreguntas,
+  guardarEvaluadosPorEvaluacion,
+  getAsignaciones,
 } from "../services/api";
 
 const EvaluacionesConfig = () => {
-  const { t } = useTranslation();
   const [evaluaciones, setEvaluaciones] = useState([]);
-  const [seleccionada, setSeleccionada] = useState(null);
-  const [detalle, setDetalle] = useState({ categorias: [], preguntas: [], niveles: [] });
-  const [nueva, setNueva] = useState({ nombre: "", descripcion: "" });
+  const [nueva, setNueva] = useState("");
+  const [empleados, setEmpleados] = useState([]);
+  const [preguntas, setPreguntas] = useState([]);
+  const [seleccionados, setSeleccionados] = useState([]);
+  const [preguntasSeleccionadas, setPreguntasSeleccionadas] = useState([]);
 
-  const cargar = async () => {
+  useEffect(() => {
+    cargarEvaluaciones();
+    cargarEmpleados();
+    cargarPreguntas();
+  }, []);
+
+  const cargarEvaluaciones = async () => {
     const res = await getEvaluaciones();
     setEvaluaciones(res.data);
   };
 
-  const seleccionarEvaluacion = async (e) => {
-    setSeleccionada(e);
-    const [cat, preg, niv] = await Promise.all([
-      getCategoriasByEvaluacion(e.id),
-      getPreguntasByEvaluacion(e.id),
-      getNivelesByEvaluacion(e.id)
-    ]);
-    setDetalle({ categorias: cat.data, preguntas: preg.data, niveles: niv.data });
+  const cargarEmpleados = async () => {
+    const res = await getEmpleados();
+    const empleadosConAsignaciones = await Promise.all(
+      res.data.map(async (emp) => {
+        const asignaciones = await getAsignaciones(emp.dni);
+        return { ...emp, asignaciones: asignaciones.data };
+      })
+    );
+    setEmpleados(empleadosConAsignaciones);
   };
 
-  const crearEvaluacion = async () => {
-    if (!nueva.nombre) return;
-    await addEvaluacion(nueva);
-    setNueva({ nombre: "", descripcion: "" });
-    await cargar();
+  const cargarPreguntas = async () => {
+    const res = await getPreguntas();
+    setPreguntas(res.data);
   };
 
-  useEffect(() => {
-    cargar();
-  }, []);
+  const handleCrearEvaluacion = async () => {
+    if (!nueva.trim()) return;
+
+    // Crear nueva evaluación
+    const res = await addEvaluacion({ nombre: nueva });
+    await cargarEvaluaciones();
+
+    // Buscar la evaluación recién creada
+    const actualizada = await getEvaluaciones();
+    const ultima = actualizada.data[actualizada.data.length - 1];
+
+    // Guardar participantes seleccionados
+    await guardarEvaluadosPorEvaluacion(ultima.id, seleccionados);
+
+    // Aquí podrías guardar preguntas asociadas si decides extender el backend para eso
+
+    alert("Evaluación creada correctamente");
+    setNueva("");
+    setSeleccionados([]);
+    setPreguntasSeleccionadas([]);
+  };
+
+  const toggleSeleccion = (dni) => {
+    if (seleccionados.includes(dni)) {
+      setSeleccionados(seleccionados.filter((e) => e !== dni));
+    } else {
+      setSeleccionados([...seleccionados, dni]);
+    }
+  };
+
+  const togglePregunta = (id) => {
+    if (preguntasSeleccionadas.includes(id)) {
+      setPreguntasSeleccionadas(preguntasSeleccionadas.filter((p) => p !== id));
+    } else {
+      setPreguntasSeleccionadas([...preguntasSeleccionadas, id]);
+    }
+  };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-mia">{t("Configuración de Evaluaciones")}</h1>
+    <div className="max-w-5xl mx-auto p-4 space-y-6">
+      <h1 className="text-2xl font-bold text-mia">Configuración de Evaluaciones</h1>
 
-      <div className="p-4 border rounded bg-white space-y-3">
-        <h2 className="text-lg font-semibold">{t("Crear nueva evaluación")}</h2>
+      <div className="bg-white p-4 rounded shadow space-y-4">
         <input
           type="text"
-          placeholder="Nombre"
-          value={nueva.nombre}
-          onChange={(e) => setNueva({ ...nueva, nombre: e.target.value })}
+          value={nueva}
+          onChange={(e) => setNueva(e.target.value)}
+          placeholder="Nombre de la evaluación"
           className="border p-2 rounded w-full"
         />
-        <textarea
-          placeholder="Descripción"
-          value={nueva.descripcion}
-          onChange={(e) => setNueva({ ...nueva, descripcion: e.target.value })}
-          className="border p-2 rounded w-full"
-        />
+
+        <h2 className="text-lg font-semibold">Seleccionar Participantes</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {empleados.map((e) => (
+            <label key={e.dni} className="flex items-center gap-2 border p-2 rounded">
+              <input
+                type="checkbox"
+                checked={seleccionados.includes(e.dni)}
+                onChange={() => toggleSeleccion(e.dni)}
+              />
+              <div>
+                <div className="font-medium">{e.nombre}</div>
+                <div className="text-sm text-gray-500">
+                  Evalúa a: {e.asignaciones.join(", ") || "—"}
+                </div>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        <h2 className="text-lg font-semibold">Seleccionar Preguntas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {preguntas.map((p) => (
+            <label key={p.id} className="flex items-center gap-2 border p-2 rounded">
+              <input
+                type="checkbox"
+                checked={preguntasSeleccionadas.includes(p.id)}
+                onChange={() => togglePregunta(p.id)}
+              />
+              <div>
+                <div>{p.texto}</div>
+                <div className="text-xs text-gray-500">Categoría: {p.categoria_id}</div>
+              </div>
+            </label>
+          ))}
+        </div>
+
         <button
-          onClick={crearEvaluacion}
-          className="bg-mia text-white px-4 py-2 rounded"
+          onClick={handleCrearEvaluacion}
+          className="bg-mia text-white px-6 py-2 rounded"
         >
-          {t("Crear evaluación")}
+          Crear Evaluación
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <h2 className="font-semibold">{t("Lista de Evaluaciones")}</h2>
-          <ul className="bg-white rounded border divide-y">
-            {evaluaciones.map((e) => (
-              <li
-                key={e.id}
-                className={`p-3 cursor-pointer hover:bg-gray-100 ${seleccionada?.id === e.id ? "bg-yellow-50" : ""}`}
-                onClick={() => seleccionarEvaluacion(e)}
-              >
-                <strong>{e.nombre}</strong>
-                <div className="text-sm text-gray-600">{e.descripcion}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {seleccionada && (
-          <div className="space-y-3">
-            <h2 className="font-semibold">{t("Detalle de Evaluación")}: {seleccionada.nombre}</h2>
-            <div>
-              <h3 className="text-mia font-semibold">{t("Categorías")}</h3>
-              <ul className="list-disc pl-6 text-sm">
-                {detalle.categorias.map((c) => <li key={c.id}>{c.nombre}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-mia font-semibold">{t("Preguntas")}</h3>
-              <ul className="list-disc pl-6 text-sm">
-                {detalle.preguntas.map((p) => <li key={p.id}>{p.texto}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-mia font-semibold">{t("Niveles de Calificación")}</h3>
-              <ul className="list-disc pl-6 text-sm">
-                {detalle.niveles.map((n) => <li key={n.id}>{n.nivel} ({n.puntos} pts)</li>)}
-              </ul>
-            </div>
-          </div>
-        )}
+      <div>
+        <h2 className="text-lg font-bold mt-6 mb-2">Evaluaciones Existentes</h2>
+        <ul className="bg-white rounded shadow divide-y">
+          {evaluaciones.map((ev) => (
+            <li key={ev.id} className="p-2">
+              {ev.nombre}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
