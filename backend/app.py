@@ -106,6 +106,11 @@ def post_asignaciones():
         query_db("INSERT INTO asignaciones (evaluador_dni, evaluado_dni) VALUES (?, ?)", (evaluador, ev))
     return jsonify({"status": "ok"})
 
+@app.route("/api/asignaciones/<dni>", methods=["GET"])
+def get_asignaciones_por_evaluador(dni):
+    rows = query_db("SELECT evaluado_dni FROM asignaciones WHERE evaluador_dni = ?", (dni,))
+    return jsonify([r[0] for r in rows])
+
 # -----------------------------
 # EVALUACIONES
 # -----------------------------
