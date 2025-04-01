@@ -6,7 +6,6 @@ const LocalesAreas = () => {
   const [areas, setAreas] = useState([]);
   const [nuevaSucursal, setNuevaSucursal] = useState("");
   const [nuevaArea, setNuevaArea] = useState("");
-
   useEffect(() => {
     cargarDatos();
   }, []);
@@ -16,8 +15,8 @@ const LocalesAreas = () => {
       const s = await getSucursales();
       const a = await getAreas();
       export const getSucursales = async () => {
-  const res = await axios.get(`${API}/sucursales`);
-  return res.data;
+      const res = await axios.get(`${API}/sucursales`);
+      return res.data;
 };
 
 export const getAreas = async () => {
