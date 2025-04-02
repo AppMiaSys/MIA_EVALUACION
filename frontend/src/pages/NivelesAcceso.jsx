@@ -21,14 +21,12 @@ const NivelesAcceso = () => {
     cargar();
   }, []);
 
-  const cargar = async () => {
-    try {
-      const res = await getNivelesAcceso();
-      setNiveles(res.data);
-    } catch (err) {
-      console.error("Error al cargar niveles:", err);
-    }
-  };
+  const cargarNiveles = async () => {
+  const res = await getNivelesAcceso();
+  console.log("🧠 Niveles de Acceso:", res);
+  setNiveles(res.data);
+};
+
 
   const togglePermiso = (permiso, enEdicion = false) => {
     const target = enEdicion ? editando : nuevo;
