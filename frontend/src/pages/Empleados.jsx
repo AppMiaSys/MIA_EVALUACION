@@ -16,6 +16,7 @@ const Empleados = () => {
   const [sucursales, setSucursales] = useState([]);
   const [areas, setAreas] = useState([]);
   const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
+  const [popupVisible, setPopupVisible] = useState(false); // ✅ Agregar esta línea
   const [editando, setEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
