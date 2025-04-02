@@ -1,5 +1,3 @@
-// ✅ src/pages/NivelesAcceso.jsx con modal y lógica mejorada + manejo de errores
-
 import React, { useEffect, useState } from "react";
 import { getNivelesAcceso, addNivelAcceso, updateNivelAcceso } from "../services/api";
 import { useTranslation } from "react-i18next";
@@ -18,15 +16,19 @@ const NivelesAcceso = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    cargar();
+    cargarNiveles();
   }, []);
 
   const cargarNiveles = async () => {
-  const res = await getNivelesAcceso();
-  console.log("🧠 Niveles de Acceso:", res);
-  setNiveles(res.data);
-};
-
+    try {
+      const res = await getNivelesAcceso();
+      console.log("🧠 Niveles de Acceso:", res);
+      setNiveles(res.data || []);
+    } catch (err) {
+      console.error("❌ Error al cargar niveles:", err);
+      setNiveles([]);
+    }
+  };
 
   const togglePermiso = (permiso, enEdicion = false) => {
     const target = enEdicion ? editando : nuevo;
@@ -47,7 +49,7 @@ const NivelesAcceso = () => {
       setNuevo({ nombre: "", permisos: [] });
       setMostrarFormulario(false);
       setError("");
-      await cargar();
+      await cargarNiveles();
     } catch (err) {
       console.error("Error al agregar nivel:", err);
       setError(t("Ocurrió un error al guardar el nivel."));
@@ -55,55 +57,33 @@ const NivelesAcceso = () => {
   };
 
   const handleUpdate = async () => {
-    await updateNivelAcceso({ ...editando, permisos: editando.permisos.join(",") });
-    setEditando(null);
-    await cargar();
+    try {
+      await updateNivelAcceso({ ...editando, permisos: editando.permisos.join(",") });
+      setEditando(null);
+      await cargarNiveles();
+    } catch (err) {
+      console.error("Error al actualizar nivel:", err);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-mia">{t("Niveles de Acceso")}</h1>
-        {niveles.length > 0 && (
-          <button
-            onClick={() => {
-              setMostrarFormulario(true);
-              setNuevo({ nombre: "", permisos: [] });
-              setError("");
-            }}
-            className="bg-mia text-white px-4 py-1 rounded"
-          >
-            {t("Nuevo")}
-          </button>
-        )}
+        <button
+          onClick={() => {
+            setMostrarFormulario(true);
+            setNuevo({ nombre: "", permisos: [] });
+            setError("");
+          }}
+          className="bg-mia text-white px-4 py-1 rounded"
+        >
+          {t("Nuevo")}
+        </button>
       </div>
 
       {niveles.length === 0 ? (
-        <div className="p-4 border rounded bg-white space-y-4">
-          <input
-            type="text"
-            placeholder={t("Nombre del nivel")}
-            value={nuevo.nombre}
-            onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
-            className="border p-2 rounded w-full"
-          />
-          <div className="grid grid-cols-2 gap-2">
-            {opciones.map((op) => (
-              <label key={op} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={nuevo.permisos.includes(op)}
-                  onChange={() => togglePermiso(op)}
-                />
-                {op}
-              </label>
-            ))}
-          </div>
-          <button onClick={handleAdd} className="bg-mia text-white px-4 py-2 rounded">
-            {t("Agregar Nivel")}
-          </button>
-          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-        </div>
+        <p className="text-gray-600">{t("No hay niveles de acceso registrados.")}</p>
       ) : (
         <ul className="divide-y rounded border bg-white">
           {niveles.map((n) => (
