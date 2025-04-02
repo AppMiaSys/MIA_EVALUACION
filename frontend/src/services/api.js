@@ -46,6 +46,11 @@ export const getNivelesByEvaluacion = (evaluacionId) =>
 export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
 export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
 export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
+export async function updateEvaluacion(id, data) {
+  const response = await axios.put(`${BASE_URL}/evaluaciones/${id}`, data);
+  return response.data;
+}
+
 
 // Sucursales
 export const getSucursales = () => axios.get(`${API}/sucursales`).then(res => res.data);
@@ -58,3 +63,5 @@ export const getAreas = () => axios.get(`${API}/areas`).then(res => res.data);
 export const addArea = (data) => axios.post(`${API}/areas`, data);
 export const updateArea = (data) => axios.put(`${API}/areas`, data);
 export const deleteArea = (id) => axios.delete(`${API}/areas/${id}`);
+
+
