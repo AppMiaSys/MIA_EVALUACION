@@ -43,7 +43,7 @@ const EvaluacionesConfig = () => {
     setPreguntas(res.data);
   };
 
-  const handleCrearEvaluacion = async () => {
+ const handleCrearEvaluacion = async () => {
   if (!nueva.trim()) return;
 
   try {
