@@ -123,17 +123,34 @@ def get_evaluaciones():
 def add_evaluacion():
     d = request.json
     try:
+        # Validación inicial
+        if "nombre" not in d:
+            return jsonify({"error": "El campo 'nombre' es obligatorio"}), 400
+
         # Crear la evaluación
         query_db("INSERT INTO evaluaciones (nombre) VALUES (?)", (d["nombre"],))
-        evaluacion_id = query_db("SELECT last_insert_rowid()", one=True)[0]
+        result = query_db("SELECT last_insert_rowid()", one=True)
+
+        if not result:
+            return jsonify({"error": "No se pudo obtener el ID de la evaluación recién creada"}), 500
+
+        evaluacion_id = result[0]
 
         # Participantes
-        for dni in d.get("participantes", []):
-            query_db("INSERT INTO evaluaciones_participantes (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
+        participantes = d.get("participantes", [])
+        for dni in participantes:
+            try:
+                query_db("INSERT INTO evaluaciones_participantes (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
+            except Exception as e:
+                print(f"Error insertando participante {dni}: {str(e)}")
 
         # Preguntas
-        for pregunta_id in d.get("preguntas", []):
-            query_db("INSERT INTO evaluaciones_preguntas (evaluacion_id, pregunta_id) VALUES (?, ?)", (evaluacion_id, pregunta_id))
+        preguntas = d.get("preguntas", [])
+        for pregunta_id in preguntas:
+            try:
+                query_db("INSERT INTO evaluaciones_preguntas (evaluacion_id, pregunta_id) VALUES (?, ?)", (evaluacion_id, pregunta_id))
+            except Exception as e:
+                print(f"Error insertando pregunta {pregunta_id}: {str(e)}")
 
         return jsonify({"status": "ok", "evaluacion_id": evaluacion_id})
 
