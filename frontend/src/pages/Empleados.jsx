@@ -1,5 +1,3 @@
-// ✅ src/pages/Empleados.jsx con validación de datos cargados
-
 import React, { useEffect, useState } from "react";
 import {
   getEmpleados,
@@ -22,18 +20,8 @@ const Empleados = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
-  const fetchData = async () => {
-   cargarSucursalesYAreas();
-}, []);
-    try {
-      const suc = await getSucursales();
-      const ar = await getAreas();
-      setSucursales(suc);
-      setAreas(ar);
-    } catch (error) {
-      console.error("Error cargando sucursales/áreas:", error);
-    }
-  };
+    cargarTodo();
+  }, []);
 
   const cargarTodo = async () => {
     try {
@@ -43,16 +31,16 @@ const Empleados = () => {
         getSucursales(),
         getAreas(),
       ]);
-console.log("✅ Sucursales:", resSucursales.data);
-    console.log("✅ Áreas:", resAreas.data);
+      console.log("✅ Sucursales:", resSucursales?.data);
+      console.log("✅ Áreas:", resAreas?.data);
       setEmpleados(resEmpleados?.data || []);
       setNiveles(resNiveles?.data || []);
       setSucursales(resSucursales?.data || []);
       setAreas(resAreas?.data || []);
     } catch (error) {
-    console.error("❌ Error cargando datos:", error);
-  }
-};
+      console.error("❌ Error cargando datos:", error);
+    }
+  };
 
   const guardar = async () => {
     if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
@@ -87,25 +75,25 @@ console.log("✅ Sucursales:", resSucursales.data);
             <input type="text" placeholder="DNI" value={nuevo.dni} onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Nombre" value={nuevo.nombre} onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} className="border p-2 rounded w-full" />
 
-<select value={formData.sucursal} onChange={e => setFormData({ ...formData, sucursal: e.target.value })}>
-  <option value="">Seleccione una</option>
-  {sucursales.map(s => (
-    <option key={s.id} value={s.nombre}>{s.nombre}</option>
-  ))}
-</select>
+            <select value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
+              <option value="">{t("Selecciona una sucursal")}</option>
+              {sucursales.map(s => (
+                <option key={s.id} value={s.nombre}>{s.nombre}</option>
+              ))}
+            </select>
 
-<select value={formData.area} onChange={e => setFormData({ ...formData, area: e.target.value })}>
-  <option value="">Seleccione una</option>
-  {areas.map(a => (
-    <option key={a.id} value={a.nombre}>{a.nombre}</option>
-  ))}
-</select>
+            <select value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
+              <option value="">{t("Selecciona un área")}</option>
+              {areas.map(a => (
+                <option key={a.id} value={a.nombre}>{a.nombre}</option>
+              ))}
+            </select>
 
             <input type="password" placeholder="Contraseña" value={nuevo.contrasena} onChange={(e) => setNuevo({ ...nuevo, contrasena: e.target.value })} className="border p-2 rounded w-full" />
 
             <select value={nuevo.nivel_acceso} onChange={(e) => setNuevo({ ...nuevo, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona un nivel")}</option>
-              {Array.isArray(niveles) && niveles.map((n) => (
+              {niveles.map((n) => (
                 <option key={n.id} value={n.id}>{n.nombre}</option>
               ))}
             </select>
@@ -125,14 +113,14 @@ console.log("✅ Sucursales:", resSucursales.data);
 
           <select value={editando.sucursal} onChange={(e) => setEditando({ ...editando, sucursal: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona una sucursal")}</option>
-            {Array.isArray(sucursales) && sucursales.map((s) => (
+            {sucursales.map((s) => (
               <option key={s.id} value={s.nombre}>{s.nombre}</option>
             ))}
           </select>
 
           <select value={editando.area} onChange={(e) => setEditando({ ...editando, area: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona un área")}</option>
-            {Array.isArray(areas) && areas.map((a) => (
+            {areas.map((a) => (
               <option key={a.id} value={a.nombre}>{a.nombre}</option>
             ))}
           </select>
@@ -141,7 +129,7 @@ console.log("✅ Sucursales:", resSucursales.data);
 
           <select value={editando.nivel_acceso} onChange={(e) => setEditando({ ...editando, nivel_acceso: e.target.value })} className="border p-2 rounded w-full">
             <option value="">{t("Selecciona un nivel")}</option>
-            {Array.isArray(niveles) && niveles.map((n) => (
+            {niveles.map((n) => (
               <option key={n.id} value={n.id}>{n.nombre}</option>
             ))}
           </select>
