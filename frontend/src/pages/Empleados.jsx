@@ -35,11 +35,12 @@ function Empleados() {
   const cargarTodo = async () => {
     try {
       const [emp, suc, ar, niv] = await Promise.all([
-        getEmpleados(),
+        getEmpleados().then(res => res.data),
         getSucursales(),
         getAreas(),
-        getNivelesAcceso(),
+        getNivelesAcceso().then(res => res.data),
       ]);
+
       setEmpleados(Array.isArray(emp) ? emp : []);
       setSucursales(Array.isArray(suc) ? suc : []);
       setAreas(Array.isArray(ar) ? ar : []);
@@ -163,11 +164,12 @@ function Empleados() {
                 onChange={(e) => setNivelAcceso(e.target.value)}
               >
                 <option value="">Nivel de acceso</option>
-                {niveles.map((n) => (
-                  <option key={n.id} value={n.id}>
-                    {n.nombre}
-                  </option>
-                ))}
+                {Array.isArray(niveles) &&
+                  niveles.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.nombre}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="mt-4 flex justify-end gap-2">
