@@ -73,14 +73,14 @@ const cargarSucursalesYAreas = async () => {
             <input type="text" placeholder="DNI" value={nuevo.dni} onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Nombre" value={nuevo.nombre} onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} className="border p-2 rounded w-full" />
 
-            <select value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
+            <select value={nuevoEmpleado.sucursal} onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, sucursal: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona una sucursal")}</option>
               {sucursales.map(s => (
                 <option key={s.id} value={s.nombre}>{s.nombre}</option>
               ))}
             </select>
 
-            <select value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
+            <select value={nuevoEmpleado.area} onChange={(e) => setNuevoEmpleado({ ...nuevoEmpleado, area: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona un área")}</option>
               {areas.map(a => (
                 <option key={a.id} value={a.nombre}>{a.nombre}</option>
