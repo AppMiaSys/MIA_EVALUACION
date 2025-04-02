@@ -16,43 +16,43 @@ const Empleados = () => {
   const [sucursales, setSucursales] = useState([]);
   const [areas, setAreas] = useState([]);
   const [nuevo, setNuevo] = useState({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
-  const [popupVisible, setPopupVisible] = useState(false); // ✅ Agregar esta línea
+  const [popupVisible, setPopupVisible] = useState(false);
   const [editando, setEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
-  if (popupVisible) {
-    cargarSucursalesYAreas();
-  }
-}, [popupVisible]);
+    if (popupVisible || mostrarFormulario) {
+      cargarSucursalesYAreas();
+    }
+  }, [popupVisible, mostrarFormulario]);
 
-const cargarSucursalesYAreas = async () => {
-  try {
-    const s = await getSucursales();
-    const a = await getAreas();
-    const n = await getNivelesAcceso();
-    const e = await getEmpleados();
-    setSucursales(s);
-    setAreas(a);
-    setNiveles(n);
-    setEmpleados(e);
-  } catch (error) {
-    console.error("❌ Error cargando sucursales o áreas:", error);
-  }
-};
+  const cargarSucursalesYAreas = async () => {
+    try {
+      const s = await getSucursales();
+      const a = await getAreas();
+      const n = await getNivelesAcceso();
+      const e = await getEmpleados();
+      setSucursales(s);
+      setAreas(a);
+      setNiveles(n);
+      setEmpleados(e);
+    } catch (error) {
+      console.error("❌ Error cargando sucursales o áreas:", error);
+    }
+  };
 
   const guardar = async () => {
     if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
     await addEmpleado(nuevo);
     setNuevo({ dni: "", nombre: "", sucursal: "", area: "", contrasena: "", nivel_acceso: "" });
     setMostrarFormulario(false);
-    await cargarTodo();
+    await cargarSucursalesYAreas();
   };
 
   const guardarEdicion = async () => {
     await updateEmpleado(editando);
     setEditando(null);
-    await cargarTodo();
+    await cargarSucursalesYAreas();
   };
 
   return (
@@ -74,14 +74,14 @@ const cargarSucursalesYAreas = async () => {
             <input type="text" placeholder="DNI" value={nuevo.dni} onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })} className="border p-2 rounded w-full" />
             <input type="text" placeholder="Nombre" value={nuevo.nombre} onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} className="border p-2 rounded w-full" />
 
-            <select value={nuevo.sucursal} onChange={(e) => setNuevoEmpleado({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
+            <select value={nuevo.sucursal} onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona una sucursal")}</option>
               {sucursales.map(s => (
                 <option key={s.id} value={s.nombre}>{s.nombre}</option>
               ))}
             </select>
 
-            <select value={nuevo.area} onChange={(e) => setNuevoEmpleado({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
+            <select value={nuevo.area} onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })} className="border p-2 rounded w-full">
               <option value="">{t("Selecciona un área")}</option>
               {areas.map(a => (
                 <option key={a.id} value={a.nombre}>{a.nombre}</option>
