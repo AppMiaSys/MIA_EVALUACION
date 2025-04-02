@@ -15,7 +15,7 @@ function Empleados() {
   const [sucursal, setSucursal] = useState("");
   const [area, setArea] = useState("");
   const [contrasena, setContrasena] = useState("");
-  const [nivelAcceso, setNivelAcceso] = useState(1);
+  const [nivelAcceso, setNivelAcceso] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [sucursales, setSucursales] = useState([]);
@@ -28,7 +28,7 @@ function Empleados() {
     setSucursal("");
     setArea("");
     setContrasena("");
-    setNivelAcceso(1);
+    setNivelAcceso("");
     setModoEdicion(false);
   };
 
@@ -60,7 +60,7 @@ function Empleados() {
       sucursal,
       area,
       contrasena,
-      nivel_acceso: nivelAcceso,
+      nivel_acceso: Number(nivelAcceso),
     };
 
     try {
@@ -88,12 +88,11 @@ function Empleados() {
     setPopupVisible(true);
   };
 
-const obtenerNombreNivel = (id) => {
-  const nivel = niveles.find((n) => n.id === id);
-  return nivel ? nivel.nombre : "Desconocido";
-};
+  const obtenerNombreNivel = (id) => {
+    const nivel = niveles.find((n) => n.id === id);
+    return nivel ? nivel.nombre : "Desconocido";
+  };
 
-  
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Gestión de Empleados</h1>
@@ -129,29 +128,27 @@ const obtenerNombreNivel = (id) => {
               />
               <select
                 className="border p-2"
-                value={sucursal}
+                value={sucursal || ""}
                 onChange={(e) => setSucursal(e.target.value)}
               >
                 <option value="">Seleccione sucursal</option>
-                {Array.isArray(sucursales) &&
-                  sucursales.map((s) => (
-                    <option key={s.id} value={s.nombre}>
-                      {s.nombre}
-                    </option>
-                  ))}
+                {sucursales.map((s) => (
+                  <option key={s.id} value={s.nombre}>
+                    {s.nombre}
+                  </option>
+                ))}
               </select>
               <select
                 className="border p-2"
-                value={area}
+                value={area || ""}
                 onChange={(e) => setArea(e.target.value)}
               >
                 <option value="">Seleccione área</option>
-                {Array.isArray(areas) &&
-                  areas.map((a) => (
-                    <option key={a.id} value={a.nombre}>
-                      {a.nombre}
-                    </option>
-                  ))}
+                {areas.map((a) => (
+                  <option key={a.id} value={a.nombre}>
+                    {a.nombre}
+                  </option>
+                ))}
               </select>
               <input
                 className="border p-2"
@@ -162,16 +159,15 @@ const obtenerNombreNivel = (id) => {
               />
               <select
                 className="border p-2"
-                value={nivelAcceso}
-                onChange={(e) => setNivelAcceso(Number(e.target.value))}
+                value={nivelAcceso || ""}
+                onChange={(e) => setNivelAcceso(e.target.value)}
               >
                 <option value="">Nivel de acceso</option>
-                {Array.isArray(niveles) &&
-                  niveles.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.nombre}
-                    </option>
-                  ))}
+                {niveles.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.nombre}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mt-4 flex justify-end gap-2">
