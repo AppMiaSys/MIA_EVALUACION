@@ -23,6 +23,8 @@ const Empleados = () => {
 
   useEffect(() => {
   const fetchData = async () => {
+   cargarSucursalesYAreas();
+}, []);
     try {
       const suc = await getSucursales();
       const ar = await getAreas();
@@ -32,9 +34,6 @@ const Empleados = () => {
       console.error("Error cargando sucursales/áreas:", error);
     }
   };
-
-  if (popupVisible) fetchData(); // Solo si está visible
-}, [popupVisible]);
 
   const cargarTodo = async () => {
     try {
