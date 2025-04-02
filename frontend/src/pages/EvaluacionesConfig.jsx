@@ -44,26 +44,25 @@ const EvaluacionesConfig = () => {
   };
 
   const handleCrearEvaluacion = async () => {
-    if (!nueva.trim()) return;
+  if (!nueva.trim()) return;
 
-    // Crear nueva evaluación
-    const res = await addEvaluacion({ nombre: nueva });
+  try {
+    const res = await addEvaluacion({
+      nombre: nueva,
+      participantes: seleccionados,
+      preguntas: preguntasSeleccionadas,
+    });
+
     await cargarEvaluaciones();
-
-    // Buscar la evaluación recién creada
-    const actualizada = await getEvaluaciones();
-    const ultima = actualizada.data[actualizada.data.length - 1];
-
-    // Guardar participantes seleccionados
-    await guardarEvaluadosPorEvaluacion(ultima.id, seleccionados);
-
-    // Aquí podrías guardar preguntas asociadas si decides extender el backend para eso
-
     alert("Evaluación creada correctamente");
     setNueva("");
     setSeleccionados([]);
     setPreguntasSeleccionadas([]);
-  };
+  } catch (error) {
+    console.error("❌ Error al crear evaluación:", error);
+    alert("Error al crear evaluación");
+  }
+};
 
   const toggleSeleccion = (dni) => {
     if (seleccionados.includes(dni)) {
