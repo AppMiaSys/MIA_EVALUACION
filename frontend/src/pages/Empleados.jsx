@@ -88,6 +88,12 @@ function Empleados() {
     setPopupVisible(true);
   };
 
+const obtenerNombreNivel = (id) => {
+  const nivel = niveles.find((n) => n.id === id);
+  return nivel ? nivel.nombre : "Desconocido";
+};
+
+  
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Gestión de Empleados</h1>
@@ -204,7 +210,7 @@ function Empleados() {
               <td className="border p-2">{emp.nombre}</td>
               <td className="border p-2">{emp.sucursal}</td>
               <td className="border p-2">{emp.area}</td>
-              <td className="border p-2">{emp.nivel_acceso}</td>
+              <td className="border p-2">{obtenerNombreNivel(emp.nivel_acceso)}</td>
               <td className="border p-2">
                 <button
                   onClick={() => editarEmpleado(emp)}
