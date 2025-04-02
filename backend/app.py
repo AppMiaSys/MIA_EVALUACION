@@ -124,9 +124,9 @@ def add_evaluacion():
     try:
         d = request.json
         evaluacion_id = query_db("INSERT INTO evaluaciones (nombre) VALUES (?) RETURNING id", (d["nombre"],), one=True)[0]
-        for dni in d["participantes"]:
+        for dni in d.get("participantes", []):
             query_db("INSERT INTO evaluacion_usuarios (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
-        for pregunta_id in d["preguntas"]:
+        for pregunta_id in d.get("preguntas", []):
             query_db("INSERT INTO evaluacion_preguntas (evaluacion_id, pregunta_id) VALUES (?, ?)", (evaluacion_id, pregunta_id))
         return jsonify({"status": "ok", "evaluacion_id": evaluacion_id})
     except Exception as e:
