@@ -20,27 +20,25 @@ const Empleados = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
-    cargarTodo();
-  }, []);
+  if (popupVisible) {
+    cargarSucursalesYAreas();
+  }
+}, [popupVisible]);
 
-  const cargarTodo = async () => {
-    try {
-      const [resEmpleados, resNiveles, resSucursales, resAreas] = await Promise.all([
-        getEmpleados(),
-        getNivelesAcceso(),
-        getSucursales(),
-        getAreas(),
-      ]);
-      console.log("✅ Sucursales:", resSucursales?.data);
-      console.log("✅ Áreas:", resAreas?.data);
-      setEmpleados(resEmpleados?.data || []);
-      setNiveles(resNiveles?.data || []);
-      setSucursales(resSucursales?.data || []);
-      setAreas(resAreas?.data || []);
-    } catch (error) {
-      console.error("❌ Error cargando datos:", error);
-    }
-  };
+const cargarSucursalesYAreas = async () => {
+  try {
+    const s = await getSucursales();
+    const a = await getAreas();
+    const n = await getNivelesAcceso();
+    const e = await getEmpleados();
+    setSucursales(s);
+    setAreas(a);
+    setNiveles(n);
+    setEmpleados(e);
+  } catch (error) {
+    console.error("❌ Error cargando sucursales o áreas:", error);
+  }
+};
 
   const guardar = async () => {
     if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
