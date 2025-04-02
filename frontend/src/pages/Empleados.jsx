@@ -1,30 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   getEmpleados,
   addEmpleado,
   updateEmpleado,
-  getNivelesAcceso,
   getSucursales,
   getAreas,
+  getNivelesAcceso,
 } from "../services/api";
-import { useTranslation } from "react-i18next";
 
-const Empleados = () => {
-  const { t } = useTranslation();
+function Empleados() {
   const [empleados, setEmpleados] = useState([]);
-  const [niveles, setNiveles] = useState([]);
+  const [dni, setDni] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [sucursal, setSucursal] = useState("");
+  const [area, setArea] = useState("");
+  const [contrasena, setContrasena] = useState("");
+  const [nivelAcceso, setNivelAcceso] = useState(1);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
   const [sucursales, setSucursales] = useState([]);
   const [areas, setAreas] = useState([]);
-  const [nuevo, setNuevo] = useState({
-    dni: "",
-    nombre: "",
-    sucursal: "",
-    area: "",
-    contrasena: "",
-    nivel_acceso: "",
-  });
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [editando, setEditando] = useState(null);
+  const [niveles, setNiveles] = useState([]);
+
+  const limpiarFormulario = () => {
+    setDni("");
+    setNombre("");
+    setSucursal("");
+    setArea("");
+    setContrasena("");
+    setNivelAcceso(1);
+    setModoEdicion(false);
+  };
 
   const cargarTodo = async () => {
     try {
@@ -34,10 +40,10 @@ const Empleados = () => {
         getAreas(),
         getNivelesAcceso(),
       ]);
-      setEmpleados(emp || []);
-      setSucursales(suc || []);
-      setAreas(ar || []);
-      setNiveles(niv || []);
+      setEmpleados(Array.isArray(emp) ? emp : []);
+      setSucursales(Array.isArray(suc) ? suc : []);
+      setAreas(Array.isArray(ar) ? ar : []);
+      setNiveles(Array.isArray(niv) ? niv : []);
     } catch (error) {
       console.error("❌ Error cargando datos:", error);
     }
@@ -47,148 +53,172 @@ const Empleados = () => {
     cargarTodo();
   }, []);
 
-  const guardar = async () => {
-    if (!nuevo.dni || !nuevo.nombre || !nuevo.nivel_acceso) return;
-    await addEmpleado(nuevo);
-    setPopupVisible(false);
-    setNuevo({
-      dni: "",
-      nombre: "",
-      sucursal: "",
-      area: "",
-      contrasena: "",
-      nivel_acceso: "",
-    });
-    await cargarTodo();
+  const guardarEmpleado = async () => {
+    const nuevoEmpleado = {
+      dni,
+      nombre,
+      sucursal,
+      area,
+      contrasena,
+      nivel_acceso: nivelAcceso,
+    };
+
+    try {
+      if (modoEdicion) {
+        await updateEmpleado(nuevoEmpleado);
+      } else {
+        await addEmpleado(nuevoEmpleado);
+      }
+      limpiarFormulario();
+      setPopupVisible(false);
+      cargarTodo();
+    } catch (error) {
+      console.error("Error al guardar empleado:", error);
+    }
   };
 
-  const guardarEdicion = async () => {
-    await updateEmpleado(editando);
-    setEditando(null);
-    await cargarTodo();
+  const editarEmpleado = (emp) => {
+    setDni(emp.dni);
+    setNombre(emp.nombre);
+    setSucursal(emp.sucursal);
+    setArea(emp.area);
+    setContrasena(emp.contrasena);
+    setNivelAcceso(emp.nivel_acceso);
+    setModoEdicion(true);
+    setPopupVisible(true);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-mia">{t("Usuarios")}</h1>
-        <button
-          onClick={() => setPopupVisible(true)}
-          className="bg-mia text-white px-4 py-2 rounded"
-        >
-          {t("Nuevo")}
-        </button>
-      </div>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Gestión de Empleados</h1>
+      <button
+        onClick={() => {
+          limpiarFormulario();
+          setPopupVisible(true);
+        }}
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+      >
+        + Nuevo Empleado
+      </button>
 
       {popupVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded w-full max-w-lg space-y-4">
-            <h2 className="text-lg font-semibold">{t("Nuevo Usuario")}</h2>
-            <input
-              type="text"
-              placeholder="DNI"
-              value={nuevo.dni}
-              onChange={(e) => setNuevo({ ...nuevo, dni: e.target.value })}
-              className="border p-2 rounded w-full"
-            />
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nuevo.nombre}
-              onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })}
-              className="border p-2 rounded w-full"
-            />
-            <select
-              value={nuevo.sucursal}
-              onChange={(e) => setNuevo({ ...nuevo, sucursal: e.target.value })}
-              className="border p-2 rounded w-full"
-            >
-              <option value="">{t("Selecciona una sucursal")}</option>
-              {sucursales.map((s) => (
-                <option key={s.id} value={s.nombre}>
-                  {s.nombre}
-                </option>
-              ))}
-            </select>
-            <select
-              value={nuevo.area}
-              onChange={(e) => setNuevo({ ...nuevo, area: e.target.value })}
-              className="border p-2 rounded w-full"
-            >
-              <option value="">{t("Selecciona un área")}</option>
-              {areas.map((a) => (
-                <option key={a.id} value={a.nombre}>
-                  {a.nombre}
-                </option>
-              ))}
-            </select>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={nuevo.contrasena}
-              onChange={(e) =>
-                setNuevo({ ...nuevo, contrasena: e.target.value })
-              }
-              className="border p-2 rounded w-full"
-            />
-            <select
-              value={nuevo.nivel_acceso}
-              onChange={(e) =>
-                setNuevo({ ...nuevo, nivel_acceso: e.target.value })
-              }
-              className="border p-2 rounded w-full"
-            >
-              <option value="">{t("Nivel de acceso")}</option>
-              {niveles.map((n) => (
-                <option key={n.id} value={n.id}>
-                  {n.nombre}
-                </option>
-              ))}
-            </select>
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-gray-400 px-4 py-2 rounded text-white"
-                onClick={() => setPopupVisible(false)}
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex justify-center items-center z-10">
+          <div className="bg-white p-6 rounded shadow-md w-full max-w-lg">
+            <h2 className="text-lg font-semibold mb-4">
+              {modoEdicion ? "Editar Empleado" : "Nuevo Empleado"}
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                className="border p-2"
+                placeholder="DNI"
+                value={dni}
+                onChange={(e) => setDni(e.target.value)}
+                disabled={modoEdicion}
+              />
+              <input
+                className="border p-2"
+                placeholder="Nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+              <select
+                className="border p-2"
+                value={sucursal}
+                onChange={(e) => setSucursal(e.target.value)}
               >
-                {t("Cancelar")}
+                <option value="">Seleccione sucursal</option>
+                {Array.isArray(sucursales) &&
+                  sucursales.map((s) => (
+                    <option key={s.id} value={s.nombre}>
+                      {s.nombre}
+                    </option>
+                  ))}
+              </select>
+              <select
+                className="border p-2"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+              >
+                <option value="">Seleccione área</option>
+                {Array.isArray(areas) &&
+                  areas.map((a) => (
+                    <option key={a.id} value={a.nombre}>
+                      {a.nombre}
+                    </option>
+                  ))}
+              </select>
+              <input
+                className="border p-2"
+                placeholder="Contraseña"
+                type="password"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+              />
+              <select
+                className="border p-2"
+                value={nivelAcceso}
+                onChange={(e) => setNivelAcceso(Number(e.target.value))}
+              >
+                <option value="">Nivel de acceso</option>
+                {Array.isArray(niveles) &&
+                  niveles.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.nombre}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setPopupVisible(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancelar
               </button>
               <button
-                className="bg-mia px-4 py-2 rounded text-white"
-                onClick={guardar}
+                onClick={guardarEmpleado}
+                className="px-4 py-2 bg-green-600 text-white rounded"
               >
-                {t("Guardar")}
+                Guardar
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded shadow">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">{t("DNI")}</th>
-              <th className="border px-4 py-2">{t("Nombre")}</th>
-              <th className="border px-4 py-2">{t("Sucursal")}</th>
-              <th className="border px-4 py-2">{t("Área")}</th>
-              <th className="border px-4 py-2">{t("Nivel de Acceso")}</th>
+      <table className="w-full mt-4 border">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border p-2">DNI</th>
+            <th className="border p-2">Nombre</th>
+            <th className="border p-2">Sucursal</th>
+            <th className="border p-2">Área</th>
+            <th className="border p-2">Nivel</th>
+            <th className="border p-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {empleados.map((emp) => (
+            <tr key={emp.dni}>
+              <td className="border p-2">{emp.dni}</td>
+              <td className="border p-2">{emp.nombre}</td>
+              <td className="border p-2">{emp.sucursal}</td>
+              <td className="border p-2">{emp.area}</td>
+              <td className="border p-2">{emp.nivel_acceso}</td>
+              <td className="border p-2">
+                <button
+                  onClick={() => editarEmpleado(emp)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Editar
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {empleados.map((e) => (
-              <tr key={e.dni}>
-                <td className="border px-4 py-2">{e.dni}</td>
-                <td className="border px-4 py-2">{e.nombre}</td>
-                <td className="border px-4 py-2">{e.sucursal}</td>
-                <td className="border px-4 py-2">{e.area}</td>
-                <td className="border px-4 py-2">{e.nivel_acceso}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
+}
 
 export default Empleados;
