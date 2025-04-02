@@ -49,13 +49,19 @@ export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
 export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
 
 // Sucursales
-export const getSucursales = () => axios.get(`${BASE_URL}/sucursales`);
+export const getSucursales = async () => {
+  const response = await axios.get(`${BASE_URL}/sucursales`);
+  return response.data; // <-- asegurarse que devuelve array plano
+};
 export const addSucursal = (data) => axios.post(`${API}/sucursales`, data);
 export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
 // (Si existe, mantener deleteSucursal igual, e.g., export const deleteSucursal = (id) => axios.delete(`${API}/sucursales/${id}`);)
 
 // Áreas
-export const getAreas = () => axios.get(`${BASE_URL}/areas`);
+export const getAreas = async () => {
+  const response = await axios.get(`${BASE_URL}/areas`);
+  return response.data; // <-- igual aquí
+};
 export const addArea = (data) => axios.post(`${API}/areas`, data);
 export const updateArea = (data) => axios.put(`${API}/areas`, data);
 // (Similarmente, mantener deleteArea si existe: export const deleteArea = (id) => axios.delete(`${API}/areas/${id}`);)
