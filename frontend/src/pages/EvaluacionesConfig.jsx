@@ -49,7 +49,7 @@ const ConfiguracionEvaluaciones = () => {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
       participantes: seleccionados,
-      preguntas: []
+      preguntas: [] // También editable si decides
     });
     setMensaje('✏️ Evaluación actualizada correctamente.');
     cargarEvaluaciones();
@@ -93,6 +93,21 @@ const ConfiguracionEvaluaciones = () => {
       prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
     );
   };
+const handleEditar = (evaluacion) => {
+  setModoEdicion(true);
+  setDatosFormulario({
+    nombre: evaluacion.nombre,
+    // otros campos que uses
+  });
+  setIdEdicion(evaluacion.id);
+};
+
+const handleEliminar = async (id) => {
+  if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
+    await deleteEvaluacion(id);
+    await cargarEvaluaciones(); // vuelve a cargar la lista
+  }
+};
 
   const resetForm = () => {
     setNombre('');
@@ -119,35 +134,35 @@ const ConfiguracionEvaluaciones = () => {
 
       {evaluaciones.length > 0 && (
         <div className="mb-4">
-          <h2 className="font-semibold mb-1">Evaluaciones existentes</h2>
-          <ul className="space-y-2">
-            {evaluaciones.map(evaluacion => (
-              <li key={evaluacion.id} className="bg-gray-100 p-3 rounded flex justify-between items-center">
-                <div>
-                  <span className="font-medium">{evaluacion.nombre}</span>
-                  {eval.fecha_inicio && <span className="ml-2 text-sm text-gray-600">({eval.fecha_inicio} - {eval.fecha_fin})</span>}
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    className="bg-yellow-400 px-2 py-1 text-sm rounded"
-                    onClick={() => {
-                      setModoEditar(true);
-                      setEvaluacionSeleccionada(eval);
-                      setNombre(eval.nombre);
-                      setFechaInicio(eval.fecha_inicio || '');
-                      setFechaFin(eval.fecha_fin || '');
-                      setEvaluacionId(eval.id);
-                    }}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                    onClick={() => eliminarEvaluacion(eval.id)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
+          <h2 className="font-semibold">Evaluaciones existentes</h2>
+          <ul className="list-disc ml-6">
+            {Array.isArray(evaluaciones) && evaluaciones.map(eval => (
+              <li key={eval.id} className="mb-1 flex items-center space-x-2">
+                <span className="font-medium">{eval.nombre}</span>
+                <button
+                  className="text-sm bg-yellow-400 px-2 py-1 rounded"
+                  onClick={() => {
+                    setModoEditar(true);
+                    setEvaluacionSeleccionada(eval);
+                    setNombre(eval.nombre);
+                    setFechaInicio(eval.fecha_inicio || '');
+                    setFechaFin(eval.fecha_fin || '');
+                    setEvaluacionId(eval.id);
+                  }}
+                >
+                  Editar
+                </button>
+                <button
+                  className="text-sm bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => eliminarEvaluacion(eval.id)}
+                >
+                  Eliminar
+                </button>
+                <td>
+  <button onClick={() => handleEditar(eval)}>Editar</button>
+  <button onClick={() => handleEliminar(eval.id)}>Eliminar</button>
+</td>
+
               </li>
             ))}
           </ul>
