@@ -157,6 +157,34 @@ def add_evaluacion():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/evaluaciones/<int:evaluacion_id>", methods=["PUT"])
+def editar_evaluacion(evaluacion_id):
+    d = request.json
+    try:
+        # Validar datos mínimos
+        if "nombre" not in d:
+            return jsonify({"error": "El campo 'nombre' es obligatorio"}), 400
+
+        # Actualizar nombre
+        query_db("UPDATE evaluaciones SET nombre = ? WHERE id = ?", (d["nombre"], evaluacion_id))
+
+        # Actualizar participantes
+        query_db("DELETE FROM evaluaciones_participantes WHERE evaluacion_id = ?", (evaluacion_id,))
+        participantes = d.get("participantes", [])
+        for dni in participantes:
+            query_db("INSERT INTO evaluaciones_participantes (evaluacion_id, empleado_dni) VALUES (?, ?)", (evaluacion_id, dni))
+
+        # Actualizar preguntas
+        query_db("DELETE FROM evaluaciones_preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
+        preguntas = d.get("preguntas", [])
+        for pregunta_id in preguntas:
+            query_db("INSERT INTO evaluaciones_preguntas (evaluacion_id, pregunta_id) VALUES (?, ?)", (evaluacion_id, pregunta_id))
+
+        return jsonify({"status": "updated"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/evaluaciones", methods=["POST"])
 def enviar_evaluacion():
