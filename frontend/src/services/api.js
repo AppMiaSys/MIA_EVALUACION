@@ -47,9 +47,10 @@ export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data
 export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
 export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
 export async function updateEvaluacion(id, data) {
-  const response = await axios.put(`${BASE_URL}/evaluaciones/${id}`, data);
+  const response = await axios.put(`${API}/evaluaciones/${id}`, data); // reemplazar BASE_URL por API
   return response.data;
 }
+
 export const deleteEvaluacion = (id) => axios.delete(`${API}/evaluaciones/${id}`);
 
 
