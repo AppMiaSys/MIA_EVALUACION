@@ -222,6 +222,16 @@ def get_asignaciones_by_evaluacion(evaluacion_id):
     """, (evaluacion_id,))
     return jsonify([{"evaluador_dni": r[0], "evaluado_dni": r[1]} for r in rows])
 
+@app.route("/api/evaluaciones/<int:evaluacion_id>", methods=["DELETE"])
+def eliminar_evaluacion(evaluacion_id):
+    try:
+        query_db("DELETE FROM evaluaciones WHERE id = ?", (evaluacion_id,))
+        query_db("DELETE FROM evaluaciones_participantes WHERE evaluacion_id = ?", (evaluacion_id,))
+        query_db("DELETE FROM evaluaciones_preguntas WHERE evaluacion_id = ?", (evaluacion_id,))
+        return jsonify({"status": "deleted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # -----------------------------
 # EVALUACION USUARIOS
 # -----------------------------
