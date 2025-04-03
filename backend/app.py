@@ -116,8 +116,16 @@ def get_asignaciones_por_evaluador(dni):
 # -----------------------------
 @app.route("/api/evaluaciones", methods=["GET"])
 def get_evaluaciones():
-    rows = query_db("SELECT id, nombre FROM evaluaciones")
-    return jsonify([{"id": r[0], "nombre": r[1]} for r in rows])
+    rows = query_db("SELECT id, nombre, fecha_inicio, fecha_fin FROM evaluaciones")
+    return jsonify([
+        {
+            "id": r[0],
+            "nombre": r[1],
+            "fecha_inicio": r[2],
+            "fecha_fin": r[3]
+        } for r in rows
+    ])
+
 
 @app.route("/api/evaluaciones/nueva", methods=["POST"])
 def add_evaluacion():
