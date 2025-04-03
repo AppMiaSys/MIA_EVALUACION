@@ -121,10 +121,10 @@ const ConfiguracionEvaluaciones = () => {
         <div className="mb-4">
           <h2 className="font-semibold mb-1">Evaluaciones existentes</h2>
           <ul className="space-y-2">
-            {evaluaciones.map(eval => (
-              <li key={eval.id} className="bg-gray-100 p-3 rounded flex justify-between items-center">
+            {evaluaciones.map(evaluacion => (
+              <li key={evaluacion.id} className="bg-gray-100 p-3 rounded flex justify-between items-center">
                 <div>
-                  <span className="font-medium">{eval.nombre}</span>
+                  <span className="font-medium">{evaluacion.nombre}</span>
                   {eval.fecha_inicio && <span className="ml-2 text-sm text-gray-600">({eval.fecha_inicio} - {eval.fecha_fin})</span>}
                 </div>
                 <div className="flex space-x-2">
