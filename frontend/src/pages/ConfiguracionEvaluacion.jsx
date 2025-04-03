@@ -34,7 +34,7 @@ const ConfiguracionEvaluaciones = () => {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
       participantes: seleccionados,
-      preguntas: [] // Si deseas incluir preguntas asociadas, ajusta aquí.
+      preguntas: []
     });
     if (res.data.status === 'ok') {
       setEvaluacionId(res.data.evaluacion_id);
@@ -49,7 +49,7 @@ const ConfiguracionEvaluaciones = () => {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
       participantes: seleccionados,
-      preguntas: [] // También editable si decides
+      preguntas: []
     });
     setMensaje('✏️ Evaluación actualizada correctamente.');
     cargarEvaluaciones();
@@ -93,21 +93,6 @@ const ConfiguracionEvaluaciones = () => {
       prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
     );
   };
-const handleEditar = (evaluacion) => {
-  setModoEdicion(true);
-  setDatosFormulario({
-    nombre: evaluacion.nombre,
-    // otros campos que uses
-  });
-  setIdEdicion(evaluacion.id);
-};
-
-const handleEliminar = async (id) => {
-  if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
-    await deleteEvaluacion(id);
-    await cargarEvaluaciones(); // vuelve a cargar la lista
-  }
-};
 
   const resetForm = () => {
     setNombre('');
@@ -124,10 +109,29 @@ const handleEliminar = async (id) => {
       <h1 className="text-xl font-bold mb-2">Configuración de Evaluaciones</h1>
 
       <div className="mb-4">
-        <input type="text" placeholder="Nombre evaluación" value={nombre} onChange={e => setNombre(e.target.value)} className="border p-2 mr-2" />
-        <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="border p-2 mr-2" />
-        <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className="border p-2 mr-2" />
-        <button onClick={guardar} className="bg-blue-500 text-white px-4 py-2 rounded">
+        <input
+          type="text"
+          placeholder="Nombre evaluación"
+          value={nombre}
+          onChange={e => setNombre(e.target.value)}
+          className="border p-2 mr-2"
+        />
+        <input
+          type="date"
+          value={fechaInicio}
+          onChange={e => setFechaInicio(e.target.value)}
+          className="border p-2 mr-2"
+        />
+        <input
+          type="date"
+          value={fechaFin}
+          onChange={e => setFechaFin(e.target.value)}
+          className="border p-2 mr-2"
+        />
+        <button
+          onClick={guardar}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
           {modoEditar ? "Actualizar" : "Crear"}
         </button>
       </div>
@@ -136,7 +140,7 @@ const handleEliminar = async (id) => {
         <div className="mb-4">
           <h2 className="font-semibold">Evaluaciones existentes</h2>
           <ul className="list-disc ml-6">
-            {evaluaciones.map(eval => (
+            {Array.isArray(evaluaciones) && evaluaciones.map((eval) => (
               <li key={eval.id} className="mb-1 flex items-center space-x-2">
                 <span className="font-medium">{eval.nombre}</span>
                 <button
@@ -158,11 +162,6 @@ const handleEliminar = async (id) => {
                 >
                   Eliminar
                 </button>
-                <td>
-  <button onClick={() => handleEditar(eval)}>Editar</button>
-  <button onClick={() => handleEliminar(eval.id)}>Eliminar</button>
-</td>
-
               </li>
             ))}
           </ul>
