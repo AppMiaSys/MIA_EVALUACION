@@ -9,6 +9,9 @@ const ConfiguracionEvaluaciones = () => {
   const [evaluacionId, setEvaluacionId] = useState(null);
   const [seleccionados, setSeleccionados] = useState([]);
   const [mensaje, setMensaje] = useState('');
+  const [modoEditar, setModoEditar] = useState(false);
+const [evaluacionSeleccionada, setEvaluacionSeleccionada] = useState(null);
+
 
   useEffect(() => {
     axios.get('/api/empleados').then(res => setEmpleados(res.data));
@@ -50,6 +53,23 @@ const ConfiguracionEvaluaciones = () => {
       prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
     );
   };
+const guardar = async () => {
+  try {
+    if (modoEditar && evaluacionSeleccionada) {
+      await updateEvaluacion(evaluacionSeleccionada.id, {
+        nombre,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+      });
+    } else {
+      await crearEvaluacion({ nombre, fecha_inicio: fechaInicio, fecha_fin: fechaFin });
+    }
+    cargarEvaluaciones(); // Refresca lista
+    resetForm(); // Limpia todo
+  } catch (error) {
+    console.error("❌ Error al guardar:", error);
+  }
+};
 
   return (
     <div className="p-4">
@@ -74,6 +94,14 @@ const ConfiguracionEvaluaciones = () => {
             ))}
           </div>
           <button onClick={guardarParticipantes} className="mt-3 bg-green-600 text-white px-4 py-2 rounded">Guardar Participantes</button>
+          <Button onClick={() => {
+  setModoEditar(true);
+  setEvaluacionSeleccionada(eval); // eval es la evaluación a editar
+  setNombre(eval.nombre);
+  setFechaInicio(eval.fecha_inicio);
+  setFechaFin(eval.fecha_fin);
+}}>Editar</Button>
+
         </div>
       )}
 
@@ -81,5 +109,6 @@ const ConfiguracionEvaluaciones = () => {
     </div>
   );
 };
+
 
 export default ConfiguracionEvaluaciones;
