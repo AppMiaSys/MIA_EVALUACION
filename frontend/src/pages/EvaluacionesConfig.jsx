@@ -136,25 +136,25 @@ const handleEliminar = async (id) => {
         <div className="mb-4">
           <h2 className="font-semibold">Evaluaciones existentes</h2>
           <ul className="list-disc ml-6">
-            {Array.isArray(evaluaciones) && evaluaciones.map(evaluacion => (
-              <li key={evaluacion.id} className="mb-1 flex items-center space-x-2">
-                <span className="font-medium">{evaluacion.nombre}</span>
+            {evaluaciones.map(eval => (
+              <li key={eval.id} className="mb-1 flex items-center space-x-2">
+                <span className="font-medium">{eval.nombre}</span>
                 <button
                   className="text-sm bg-yellow-400 px-2 py-1 rounded"
                   onClick={() => {
                     setModoEditar(true);
-                    setEvaluacionSeleccionada(evaluacion);
-                    setNombre(evaluacion.nombre);
-                    setFechaInicio(evaluacion.fecha_inicio || '');
-                    setFechaFin(evaluacion.fecha_fin || '');
-                    setEvaluacionId(evaluacion.id);
+                    setEvaluacionSeleccionada(eval);
+                    setNombre(eval.nombre);
+                    setFechaInicio(eval.fecha_inicio || '');
+                    setFechaFin(eval.fecha_fin || '');
+                    setEvaluacionId(eval.id);
                   }}
                 >
                   Editar
                 </button>
                 <button
                   className="text-sm bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => eliminarEvaluacion(evaluacion.id)}
+                  onClick={() => eliminarEvaluacion(eval.id)}
                 >
                   Eliminar
                 </button>
