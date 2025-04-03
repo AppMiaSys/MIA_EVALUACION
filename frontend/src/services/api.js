@@ -50,6 +50,7 @@ export async function updateEvaluacion(id, data) {
   const response = await axios.put(`${BASE_URL}/evaluaciones/${id}`, data);
   return response.data;
 }
+export const deleteEvaluacion = (id) => axios.delete(`${API}/evaluaciones/${id}`);
 
 
 // Sucursales
