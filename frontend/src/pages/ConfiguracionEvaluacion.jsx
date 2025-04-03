@@ -32,13 +32,13 @@ const ConfiguracionEvaluaciones = () => {
     const res = await axios.post('/api/evaluaciones/nueva', {
       nombre,
       fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin
+      fecha_fin: fechaFin,
+      participantes: seleccionados,
+      preguntas: [] // Si deseas incluir preguntas asociadas, ajusta aquí.
     });
     if (res.data.status === 'ok') {
-      const lista = await axios.get('/api/evaluaciones');
-      const ultima = lista.data[lista.data.length - 1];
-      setEvaluacionId(ultima.id);
-      setMensaje('Evaluación creada. Ahora seleccione los participantes.');
+      setEvaluacionId(res.data.evaluacion_id);
+      setMensaje('✅ Evaluación creada exitosamente.');
       cargarEvaluaciones();
     }
   };
@@ -47,25 +47,34 @@ const ConfiguracionEvaluaciones = () => {
     await axios.put(`/api/evaluaciones/${evaluacionSeleccionada.id}`, {
       nombre,
       fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin
+      fecha_fin: fechaFin,
+      participantes: seleccionados,
+      preguntas: [] // También editable si decides
     });
-    setMensaje('Evaluación actualizada correctamente.');
+    setMensaje('✏️ Evaluación actualizada correctamente.');
     cargarEvaluaciones();
   };
 
-  const guardarParticipantes = async () => {
-    if (!evaluacionId) return;
+  const eliminarEvaluacion = async (id) => {
+    const confirmacion = window.confirm("¿Estás seguro de eliminar esta evaluación?");
+    if (!confirmacion) return;
+
     try {
-      await axios.post(`/api/evaluaciones/${evaluacionId}/evaluados`, {
-        empleados: seleccionados
-      });
-      setMensaje('Participantes asignados correctamente.');
+      await axios.delete(`/api/evaluaciones/${id}`);
+      setMensaje('🗑️ Evaluación eliminada correctamente.');
+      cargarEvaluaciones();
+      resetForm();
     } catch (err) {
-      setMensaje('Error al asignar participantes.');
+      setMensaje("❌ Error al eliminar la evaluación.");
     }
   };
 
   const guardar = async () => {
+    if (!nombre.trim()) {
+      setMensaje("❌ El nombre es obligatorio.");
+      return;
+    }
+
     try {
       if (modoEditar && evaluacionSeleccionada) {
         await editarEvaluacion();
@@ -75,7 +84,7 @@ const ConfiguracionEvaluaciones = () => {
       resetForm();
     } catch (error) {
       console.error("❌ Error al guardar:", error);
-      setMensaje("Error al guardar la evaluación.");
+      setMensaje("❌ Error al guardar la evaluación.");
     }
   };
 
@@ -113,20 +122,26 @@ const ConfiguracionEvaluaciones = () => {
           <h2 className="font-semibold">Evaluaciones existentes</h2>
           <ul className="list-disc ml-6">
             {evaluaciones.map(eval => (
-              <li key={eval.id} className="mb-1">
+              <li key={eval.id} className="mb-1 flex items-center space-x-2">
                 <span className="font-medium">{eval.nombre}</span>
                 <button
-                  className="ml-4 text-sm bg-yellow-400 px-2 py-1 rounded"
+                  className="text-sm bg-yellow-400 px-2 py-1 rounded"
                   onClick={() => {
                     setModoEditar(true);
                     setEvaluacionSeleccionada(eval);
                     setNombre(eval.nombre);
-                    setFechaInicio(eval.fecha_inicio);
-                    setFechaFin(eval.fecha_fin);
+                    setFechaInicio(eval.fecha_inicio || '');
+                    setFechaFin(eval.fecha_fin || '');
                     setEvaluacionId(eval.id);
                   }}
                 >
                   Editar
+                </button>
+                <button
+                  className="text-sm bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => eliminarEvaluacion(eval.id)}
+                >
+                  Eliminar
                 </button>
               </li>
             ))}
@@ -149,7 +164,6 @@ const ConfiguracionEvaluaciones = () => {
               </label>
             ))}
           </div>
-          <button onClick={guardarParticipantes} className="mt-3 bg-green-600 text-white px-4 py-2 rounded">Guardar Participantes</button>
         </div>
       )}
 
