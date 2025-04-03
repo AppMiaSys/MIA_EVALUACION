@@ -140,7 +140,7 @@ const ConfiguracionEvaluaciones = () => {
         <div className="mb-4">
           <h2 className="font-semibold">Evaluaciones existentes</h2>
           <ul className="list-disc ml-6">
-            {Array.isArray(evaluaciones) && evaluaciones.map((eval) => (
+            {Array.isArray(evaluaciones) && evaluaciones.map(eval => (
               <li key={eval.id} className="mb-1 flex items-center space-x-2">
                 <span className="font-medium">{eval.nombre}</span>
                 <button
