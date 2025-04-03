@@ -93,6 +93,21 @@ const ConfiguracionEvaluaciones = () => {
       prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
     );
   };
+const handleEditar = (evaluacion) => {
+  setModoEdicion(true);
+  setDatosFormulario({
+    nombre: evaluacion.nombre,
+    // otros campos que uses
+  });
+  setIdEdicion(evaluacion.id);
+};
+
+const handleEliminar = async (id) => {
+  if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
+    await deleteEvaluacion(id);
+    await cargarEvaluaciones(); // vuelve a cargar la lista
+  }
+};
 
   const resetForm = () => {
     setNombre('');
@@ -143,6 +158,11 @@ const ConfiguracionEvaluaciones = () => {
                 >
                   Eliminar
                 </button>
+                <td>
+  <button onClick={() => handleEditar(eval)}>Editar</button>
+  <button onClick={() => handleEliminar(eval.id)}>Eliminar</button>
+</td>
+
               </li>
             ))}
           </ul>
