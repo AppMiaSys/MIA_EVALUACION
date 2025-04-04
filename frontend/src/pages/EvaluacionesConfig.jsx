@@ -106,7 +106,7 @@ const ConfiguracionEvaluaciones = () => {
 const handleEditar = (evaluacion) => {
     nombre: evaluacion.nombre,
     // otros campos que uses
-  });
+  };
 };
 
 const handleEliminar = async (id) => {
