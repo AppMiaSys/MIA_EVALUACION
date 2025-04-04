@@ -24,9 +24,19 @@ const ConfiguracionEvaluaciones = () => {
   };
 
   const cargarEvaluaciones = async () => {
+  try {
     const res = await axios.get('/api/evaluaciones');
-    setEvaluaciones(res.data);
-  };
+    if (Array.isArray(res.data)) {
+      setEvaluaciones(res.data);
+    } else {
+      console.error("⚠️ La respuesta no es un arreglo:", res.data);
+      setEvaluaciones([]);
+    }
+  } catch (error) {
+    console.error("❌ Error cargando evaluaciones:", error);
+    setEvaluaciones([]);
+  }
+};
 
   const crearEvaluacion = async () => {
     const res = await axios.post('/api/evaluaciones/nueva', {
@@ -94,12 +104,9 @@ const ConfiguracionEvaluaciones = () => {
     );
   };
 const handleEditar = (evaluacion) => {
-  setModoEdicion(true);
-  setDatosFormulario({
     nombre: evaluacion.nombre,
     // otros campos que uses
   });
-  setIdEdicion(evaluacion.id);
 };
 
 const handleEliminar = async (id) => {
@@ -154,7 +161,6 @@ const handleEliminar = async (id) => {
                 </button>
                 <button
                   className="text-sm bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => editarEvaluacion(evaluacion.id)}>Editar
                 </button>
                 <button
                   className="text-sm bg-red-500 text-white px-2 py-1 rounded"
