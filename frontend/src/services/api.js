@@ -16,6 +16,10 @@ export const updateEvaluacion = (id, data) =>
 export const deleteEvaluacion = (id) =>
   axios.delete(`${BASE_URL}/evaluaciones/${id}`);
 
+export const getCategoriasByEvaluacion = (evaluacion_id) =>
+  axios.get(`${BASE_URL}/evaluaciones/${evaluacion_id}/categorias`);
+
+
 // -----------------------------
 
 // -----------------------------
