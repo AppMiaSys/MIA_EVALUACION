@@ -1,69 +1,69 @@
 import axios from "axios";
 
-const API = "https://mia-backend.onrender.com/api";
+const BASE_URL = "https://mia-backend.onrender.com/api";
 
-// Empleados
-export const getEmpleados = () => axios.get(`${API}/empleados`);
-export const addEmpleado = (data) => axios.post(`${API}/empleados`, data);
-export const updateEmpleado = (data) => axios.put(`${API}/empleados`, data);
+// -----------------------------
+// EVALUACIONES
+// -----------------------------
+export const getEvaluaciones = () => axios.get(`${BASE_URL}/evaluaciones`);
 
-// Asignaciones
-export const getAsignaciones = (dni) => axios.get(`${API}/asignaciones/${dni}`);
-export const postAsignaciones = (data) => axios.post(`${API}/asignaciones`, data);
+export const addEvaluacion = (data) =>
+  axios.post(`${BASE_URL}/evaluaciones/nueva`, data);
 
-// Niveles de acceso
-export const getNivelesAcceso = () => axios.get(`${API}/niveles-acceso`);
-export const addNivelAcceso = (data) => axios.post(`${API}/niveles-acceso`, data);
-export const updateNivelAcceso = (data) => axios.put(`${API}/niveles-acceso`, data);
+export const updateEvaluacion = (id, data) =>
+  axios.put(`${BASE_URL}/evaluaciones/${id}`, data);
 
-// Evaluación usuarios por evaluación
-export const guardarEvaluadosPorEvaluacion = (evaluacionId, empleados) =>
-  axios.post(`${API}/evaluaciones/${evaluacionId}/evaluados`, { empleados });
-export const obtenerEvaluadosPorEvaluacion = (evaluacionId) =>
-  axios.get(`${API}/evaluaciones/${evaluacionId}/evaluados`);
+export const deleteEvaluacion = (id) =>
+  axios.delete(`${BASE_URL}/evaluaciones/${id}`);
 
-// Categorías
-export const getCategorias = () => axios.get(`${API}/categorias`);
-export const addCategoria = (data) => axios.post(`${API}/categorias`, data);
-export const getCategoriasByEvaluacion = (evaluacionId) =>
-  axios.get(`${API}/evaluaciones/${evaluacionId}/categorias`);
+// -----------------------------
+// EMPLEADOS
+// -----------------------------
+export const getEmpleados = () => axios.get(`${BASE_URL}/empleados`);
 
-// Preguntas
-export const getPreguntas = () => axios.get(`${API}/preguntas`);
-export const addPregunta = (data) => axios.post(`${API}/preguntas`, data);
-export const updatePregunta = (data) => axios.put(`${API}/preguntas`, data);
-export const getPreguntasByEvaluacion = (evaluacionId) =>
-  axios.get(`${API}/evaluaciones/${evaluacionId}/preguntas`);
+export const addEmpleado = (data) => axios.post(`${BASE_URL}/empleados`, data);
 
-// Niveles de calificación
-export const getNiveles = () => axios.get(`${API}/niveles`);
-export const addNivel = (data) => axios.post(`${API}/niveles`, data);
-export const updateNivel = (data) => axios.put(`${API}/niveles`, data);
-export const getNivelesByEvaluacion = (evaluacionId) =>
-  axios.get(`${API}/evaluaciones/${evaluacionId}/niveles`);
+export const updateEmpleado = (data) => axios.put(`${BASE_URL}/empleados`, data);
 
-// Evaluaciones
-export const enviarEvaluacion = (data) => axios.post(`${API}/evaluaciones`, data);
-export const getEvaluaciones = () => axios.get(`${API}/evaluaciones`);
-export const addEvaluacion = (data) => axios.post(`${API}/evaluaciones/nueva`, data);
-export async function updateEvaluacion(id, data) {
-  const response = await axios.put(`${API}/evaluaciones/${id}`, data); // reemplazar BASE_URL por API
-  return response.data;
-}
+// -----------------------------
+// NIVELES DE ACCESO
+// -----------------------------
+export const getNivelesAcceso = () =>
+  axios.get(`${BASE_URL}/niveles-acceso`);
 
-export const deleteEvaluacion = (id) => axios.delete(`${API}/evaluaciones/${id}`);
+export const addNivelAcceso = (data) =>
+  axios.post(`${BASE_URL}/niveles-acceso`, data);
 
+export const updateNivelAcceso = (data) =>
+  axios.put(`${BASE_URL}/niveles-acceso`, data);
 
-// Sucursales
-export const getSucursales = () => axios.get(`${API}/sucursales`).then(res => res.data);
-export const addSucursal = (data) => axios.post(`${API}/sucursales`, data);
-export const updateSucursal = (data) => axios.put(`${API}/sucursales`, data);
-export const deleteSucursal = (id) => axios.delete(`${API}/sucursales/${id}`);
+// -----------------------------
+// SUCURSALES Y ÁREAS
+// -----------------------------
+export const getSucursales = () => axios.get(`${BASE_URL}/sucursales`);
+export const addSucursal = (data) => axios.post(`${BASE_URL}/sucursales`, data);
+export const updateSucursal = (data) =>
+  axios.put(`${BASE_URL}/sucursales`, data);
 
-// Áreas
-export const getAreas = () => axios.get(`${API}/areas`).then(res => res.data);
-export const addArea = (data) => axios.post(`${API}/areas`, data);
-export const updateArea = (data) => axios.put(`${API}/areas`, data);
-export const deleteArea = (id) => axios.delete(`${API}/areas/${id}`);
+export const getAreas = () => axios.get(`${BASE_URL}/areas`);
+export const addArea = (data) => axios.post(`${BASE_URL}/areas`, data);
+export const updateArea = (data) => axios.put(`${BASE_URL}/areas`, data);
 
+// -----------------------------
+// PREGUNTAS Y CATEGORÍAS
+// -----------------------------
+export const getPreguntas = () => axios.get(`${BASE_URL}/preguntas`);
+export const addPregunta = (data) => axios.post(`${BASE_URL}/preguntas`, data);
+export const updatePregunta = (data) =>
+  axios.put(`${BASE_URL}/preguntas`, data);
 
+export const getCategorias = () => axios.get(`${BASE_URL}/categorias`);
+export const addCategoria = (data) =>
+  axios.post(`${BASE_URL}/categorias`, data);
+
+// -----------------------------
+// NIVELES DE CALIFICACIÓN
+// -----------------------------
+export const getNiveles = () => axios.get(`${BASE_URL}/niveles`);
+export const addNivel = (data) => axios.post(`${BASE_URL}/niveles`, data);
+export const updateNivel = (data) => axios.put(`${BASE_URL}/niveles`, data);
