@@ -348,9 +348,6 @@ def get_niveles_by_evaluacion(evaluacion_id):
     rows = query_db("SELECT id, nombre, puntaje FROM niveles WHERE evaluacion_id = ?", (evaluacion_id,))
     return jsonify([{"id": r[0], "nombre": r[1], "puntaje": r[2]} for r in rows])
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 # -----------------------------
 # SUCURSALES
 # -----------------------------
@@ -404,3 +401,5 @@ def delete_area(id):
     query_db("DELETE FROM areas WHERE id = ?", (id,))
     return jsonify({"status": "deleted"})
 
+if __name__ == "__main__":
+    app.run(debug=True)

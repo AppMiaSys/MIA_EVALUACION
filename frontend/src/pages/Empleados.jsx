@@ -36,8 +36,8 @@ function Empleados() {
     try {
       const [emp, suc, ar, niv] = await Promise.all([
         getEmpleados().then(res => res.data),
-        getSucursales(),
-        getAreas(),
+        getSucursales().then(res => res.data),
+        getAreas().then(res => res.data),
         getNivelesAcceso().then(res => res.data),
       ]);
 

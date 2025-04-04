@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/mia-logo.svg";
+import { API } from "../services/api";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -10,7 +11,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch("https://mia-backend.onrender.com/api/empleados");
+      const res = await fetch(API+"/empleados");
       const data = await res.json();
       const usuario = data.find(
         (u) => u.dni === dni && u.contrasena === password

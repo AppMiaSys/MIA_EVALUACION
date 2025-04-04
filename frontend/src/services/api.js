@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API = "https://mia-backend.onrender.com/api";
-
+//export const API = "http://127.0.0.1:5000/api";
+export const API = "https://mia-backend.onrender.com/api";
 // Empleados
 export const getEmpleados = () => axios.get(`${API}/empleados`);
 export const addEmpleado = (data) => axios.post(`${API}/empleados`, data);
