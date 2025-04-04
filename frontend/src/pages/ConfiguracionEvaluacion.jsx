@@ -24,9 +24,19 @@ const ConfiguracionEvaluaciones = () => {
   };
 
   const cargarEvaluaciones = async () => {
-    const res = await axios.get('/api/evaluaciones');
-    setEvaluaciones(res.data);
-  };
+  try {
+    const res = await axios.get(BASE_URL + "/api/evaluaciones");
+    if (Array.isArray(res.data)) {
+      setEvaluaciones(res.data);
+    } else {
+      console.warn("⚠️ Respuesta no esperada:", res.data);
+      setEvaluaciones([]); // fallback seguro
+    }
+  } catch (err) {
+    console.error("❌ Error al cargar evaluaciones:", err);
+    setEvaluaciones([]); // fallback
+  }
+};
 
   const crearEvaluacion = async () => {
     const res = await axios.post('/api/evaluaciones/nueva', {
@@ -140,30 +150,15 @@ const ConfiguracionEvaluaciones = () => {
         <div className="mb-4">
           <h2 className="font-semibold">Evaluaciones existentes</h2>
           <ul className="list-disc ml-6">
-            {Array.isArray(evaluaciones) && evaluaciones.map(eval => (
-              <li key={eval.id} className="mb-1 flex items-center space-x-2">
-                <span className="font-medium">{eval.nombre}</span>
-                <button
-                  className="text-sm bg-yellow-400 px-2 py-1 rounded"
-                  onClick={() => {
-                    setModoEditar(true);
-                    setEvaluacionSeleccionada(eval);
-                    setNombre(eval.nombre);
-                    setFechaInicio(eval.fecha_inicio || '');
-                    setFechaFin(eval.fecha_fin || '');
-                    setEvaluacionId(eval.id);
-                  }}
-                >
-                  Editar
-                </button>
-                <button
-                  className="text-sm bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => eliminarEvaluacion(eval.id)}
-                >
-                  Eliminar
-                </button>
-              </li>
-            ))}
+           {Array.isArray(evaluaciones) && evaluaciones.map((eva) => (
+  <li key={eva.id} className="flex justify-between items-center p-2 bg-white shadow rounded mb-2">
+    <span>{eva.nombre}</span>
+    <div>
+      <button onClick={() => editarEvaluacion(eva)} className="text-blue-600 mr-2">Editar</button>
+      <button onClick={() => eliminarEvaluacion(eva.id)} className="text-red-600">Eliminar</button>
+    </div>
+  </li>
+))}
           </ul>
         </div>
       )}
