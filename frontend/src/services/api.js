@@ -17,6 +17,16 @@ export const deleteEvaluacion = (id) =>
   axios.delete(`${BASE_URL}/evaluaciones/${id}`);
 
 // -----------------------------
+
+// -----------------------------
+// ASIGNACIONES
+// -----------------------------
+export const getAsignaciones = (dni) =>
+  axios.get(`${BASE_URL}/asignaciones/${dni}`);
+
+export const postAsignaciones = (data) =>
+  axios.post(`${BASE_URL}/asignaciones`, data);
+
 // EMPLEADOS
 // -----------------------------
 export const getEmpleados = () => axios.get(`${BASE_URL}/empleados`);
