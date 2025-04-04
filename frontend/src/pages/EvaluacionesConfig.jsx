@@ -103,10 +103,6 @@ const ConfiguracionEvaluaciones = () => {
       prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
     );
   };
-const handleEditar = (evaluacion) => {
-    nombre: evaluacion.nombre,
-  }
-};
 
 const handleEliminar = async (id) => {
   if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
@@ -148,13 +144,14 @@ const handleEliminar = async (id) => {
                 <button
                   className="text-sm bg-yellow-400 px-2 py-1 rounded"
                   onClick={() => {
-                    setModoEditar(true);
-                    setEvaluacionSeleccionada(evaluacion);
-                    setNombre(evaluacion.nombre);
-                    setFechaInicio(evaluacion.fecha_inicio || '');
-                    setFechaFin(evaluacion.fecha_fin || '');
-                    setEvaluacionId(evaluacion.id);
-                  }}
+  setModoEditar(true);
+  setEvaluacionSeleccionada(evaluacion);
+  setNombre(evaluacion.nombre);
+  setFechaInicio(evaluacion.fecha_inicio || '');
+  setFechaFin(evaluacion.fecha_fin || '');
+  setEvaluacionId(evaluacion.id);
+}}
+
                 >
                   Editar
                 </button>
