@@ -1,151 +1,195 @@
-import React, { useEffect, useState } from "react";
-import {
-  getEvaluaciones,
-  addEvaluacion,
-  deleteEvaluacion,
-  updateEvaluacion,
-} from "../services/api";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function EvaluacionesConfig() {
+const ConfiguracionEvaluaciones = () => {
+  const [nombre, setNombre] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+  const [empleados, setEmpleados] = useState([]);
   const [evaluaciones, setEvaluaciones] = useState([]);
-  const [nuevaEvaluacion, setNuevaEvaluacion] = useState({
-    nombre: "",
-    fecha_inicio: "",
-    fecha_fin: "",
-  });
-
-  const cargarEvaluaciones = async () => {
-    try {
-      const res = await getEvaluaciones();
-      // 👇 Validamos que siempre sea un array
-      const lista = Array.isArray(res.data) ? res.data : [];
-      setEvaluaciones(lista);
-    } catch (error) {
-      console.error("❌ Error al cargar evaluaciones:", error);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNuevaEvaluacion({ ...nuevaEvaluacion, [name]: value });
-  };
-
-  const crearEvaluacion = async () => {
-    try {
-      await addEvaluacion(nuevaEvaluacion);
-      setNuevaEvaluacion({ nombre: "", fecha_inicio: "", fecha_fin: "" });
-      cargarEvaluaciones();
-    } catch (error) {
-      console.error("❌ Error al crear evaluación:", error);
-    }
-  };
-
-  const eliminarEvaluacion = async (id) => {
-    if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
-      try {
-        await deleteEvaluacion(id);
-        cargarEvaluaciones();
-      } catch (error) {
-        console.error("❌ Error al eliminar evaluación:", error);
-      }
-    }
-  };
-
-  const editarEvaluacion = async (evalItem) => {
-    const nuevoNombre = prompt("Nuevo nombre de la evaluación:", evalItem.nombre);
-    if (nuevoNombre && nuevoNombre !== evalItem.nombre) {
-      try {
-        await updateEvaluacion(evalItem.id, { ...evalItem, nombre: nuevoNombre });
-        cargarEvaluaciones();
-      } catch (error) {
-        console.error("❌ Error al editar evaluación:", error);
-      }
-    }
-  };
+  const [evaluacionId, setEvaluacionId] = useState(null);
+  const [seleccionados, setSeleccionados] = useState([]);
+  const [mensaje, setMensaje] = useState('');
+  const [modoEditar, setModoEditar] = useState(false);
+  const [evaluacionSeleccionada, setEvaluacionSeleccionada] = useState(null);
 
   useEffect(() => {
+    cargarEmpleados();
     cargarEvaluaciones();
   }, []);
 
+  const cargarEmpleados = async () => {
+    const res = await axios.get('/api/empleados');
+    setEmpleados(res.data);
+  };
+
+  const cargarEvaluaciones = async () => {
+    const res = await axios.get('/api/evaluaciones');
+    setEvaluaciones(res.data);
+  };
+
+  const crearEvaluacion = async () => {
+    const res = await axios.post('/api/evaluaciones/nueva', {
+      nombre,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      participantes: seleccionados,
+      preguntas: [] // Si deseas incluir preguntas asociadas, ajusta aquí.
+    });
+    if (res.data.status === 'ok') {
+      setEvaluacionId(res.data.evaluacion_id);
+      setMensaje('✅ Evaluación creada exitosamente.');
+      cargarEvaluaciones();
+    }
+  };
+
+  const editarEvaluacion = async () => {
+    await axios.put(`/api/evaluaciones/${evaluacionSeleccionada.id}`, {
+      nombre,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      participantes: seleccionados,
+      preguntas: [] // También editable si decides
+    });
+    setMensaje('✏️ Evaluación actualizada correctamente.');
+    cargarEvaluaciones();
+  };
+
+  const eliminarEvaluacion = async (id) => {
+    const confirmacion = window.confirm("¿Estás seguro de eliminar esta evaluación?");
+    if (!confirmacion) return;
+
+    try {
+      await axios.delete(`/api/evaluaciones/${id}`);
+      setMensaje('🗑️ Evaluación eliminada correctamente.');
+      cargarEvaluaciones();
+      resetForm();
+    } catch (err) {
+      setMensaje("❌ Error al eliminar la evaluación.");
+    }
+  };
+
+  const guardar = async () => {
+    if (!nombre.trim()) {
+      setMensaje("❌ El nombre es obligatorio.");
+      return;
+    }
+
+    try {
+      if (modoEditar && evaluacionSeleccionada) {
+        await editarEvaluacion();
+      } else {
+        await crearEvaluacion();
+      }
+      resetForm();
+    } catch (error) {
+      console.error("❌ Error al guardar:", error);
+      setMensaje("❌ Error al guardar la evaluación.");
+    }
+  };
+
+  const toggleSeleccionado = (dni) => {
+    setSeleccionados(prev =>
+      prev.includes(dni) ? prev.filter(d => d !== dni) : [...prev, dni]
+    );
+  };
+const handleEditar = (evaluacion) => {
+  setModoEdicion(true);
+  setDatosFormulario({
+    nombre: evaluacion.nombre,
+    // otros campos que uses
+  });
+  setIdEdicion(evaluacion.id);
+};
+
+const handleEliminar = async (id) => {
+  if (window.confirm("¿Seguro que deseas eliminar esta evaluación?")) {
+    await deleteEvaluacion(id);
+    await cargarEvaluaciones(); // vuelve a cargar la lista
+  }
+};
+
+  const resetForm = () => {
+    setNombre('');
+    setFechaInicio('');
+    setFechaFin('');
+    setSeleccionados([]);
+    setEvaluacionSeleccionada(null);
+    setModoEditar(false);
+    setEvaluacionId(null);
+  };
+
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Configuración de Evaluaciones</h2>
+      <h1 className="text-xl font-bold mb-2">Configuración de Evaluaciones</h1>
 
-      <div className="mb-4 space-y-2">
-        <input
-          type="text"
-          name="nombre"
-          value={nuevaEvaluacion.nombre}
-          onChange={handleChange}
-          placeholder="Nombre de la evaluación"
-          className="border p-2 w-full"
-        />
-        <input
-          type="date"
-          name="fecha_inicio"
-          value={nuevaEvaluacion.fecha_inicio}
-          onChange={handleChange}
-          className="border p-2 w-full"
-        />
-        <input
-          type="date"
-          name="fecha_fin"
-          value={nuevaEvaluacion.fecha_fin}
-          onChange={handleChange}
-          className="border p-2 w-full"
-        />
-        <button
-          onClick={crearEvaluacion}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Crear Evaluación
+      <div className="mb-4">
+        <input type="text" placeholder="Nombre evaluación" value={nombre} onChange={e => setNombre(e.target.value)} className="border p-2 mr-2" />
+        <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="border p-2 mr-2" />
+        <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className="border p-2 mr-2" />
+        <button onClick={guardar} className="bg-blue-500 text-white px-4 py-2 rounded">
+          {modoEditar ? "Actualizar" : "Crear"}
         </button>
       </div>
 
-      <h3 className="text-lg font-semibold mb-2">Evaluaciones existentes</h3>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">Nombre</th>
-              <th className="border px-4 py-2">Fecha inicio</th>
-              <th className="border px-4 py-2">Fecha fin</th>
-              <th className="border px-4 py-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(evaluaciones) &&
-              evaluaciones.map((ev) => (
-                <tr key={ev.id}>
-                  <td className="border px-4 py-2">{ev.id}</td>
-                  <td className="border px-4 py-2">{ev.nombre}</td>
-                  <td className="border px-4 py-2">{ev.fecha_inicio || "-"}</td>
-                  <td className="border px-4 py-2">{ev.fecha_fin || "-"}</td>
-                  <td className="border px-4 py-2 space-x-2">
-                    <button
-                      onClick={() => editarEvaluacion(ev)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => eliminarEvaluacion(ev.id)}
-                      className="bg-red-600 text-white px-2 py-1 rounded"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-        {evaluaciones.length === 0 && (
-          <p className="text-gray-500 mt-2">No hay evaluaciones registradas.</p>
-        )}
-      </div>
+      {evaluaciones.length > 0 && (
+        <div className="mb-4">
+          <h2 className="font-semibold">Evaluaciones existentes</h2>
+          <ul className="list-disc ml-6">
+            {evaluaciones.map(eval => (
+              <li key={eval.id} className="mb-1 flex items-center space-x-2">
+                <span className="font-medium">{eval.nombre}</span>
+                <button
+                  className="text-sm bg-yellow-400 px-2 py-1 rounded"
+                  onClick={() => {
+                    setModoEditar(true);
+                    setEvaluacionSeleccionada(eval);
+                    setNombre(eval.nombre);
+                    setFechaInicio(eval.fecha_inicio || '');
+                    setFechaFin(eval.fecha_fin || '');
+                    setEvaluacionId(eval.id);
+                  }}
+                >
+                  Editar
+                </button>
+                <button
+                  className="text-sm bg-red-500 text-white px-2 py-1 rounded"
+                  onClick={() => eliminarEvaluacion(eval.id)}
+                >
+                  Eliminar
+                </button>
+                <td>
+  <button onClick={() => handleEditar(eval)}>Editar</button>
+  <button onClick={() => handleEliminar(eval.id)}>Eliminar</button>
+</td>
+
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {evaluacionId && (
+        <div>
+          <h2 className="text-lg font-semibold">Seleccionar Participantes</h2>
+          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto border p-2">
+            {empleados.map(emp => (
+              <label key={emp.dni} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={seleccionados.includes(emp.dni)}
+                  onChange={() => toggleSeleccionado(emp.dni)}
+                />
+                <span>{emp.nombre} ({emp.dni})</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {mensaje && <div className="mt-4 text-blue-700 font-medium">{mensaje}</div>}
     </div>
   );
-}
+};
 
-export default EvaluacionesConfig;
+export default ConfiguracionEvaluaciones;
