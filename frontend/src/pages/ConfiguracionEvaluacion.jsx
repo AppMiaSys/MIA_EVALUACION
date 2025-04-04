@@ -7,11 +7,11 @@ const ConfiguracionEvaluaciones = () => {
   const [fechaFin, setFechaFin] = useState('');
   const [empleados, setEmpleados] = useState([]);
   const [evaluaciones, setEvaluaciones] = useState([]);
-  const [evaluacionId, setEvaluacionId] = useState(null);
+  const [evaluacionId, setEvaluacionId] = useState([]);
   const [seleccionados, setSeleccionados] = useState([]);
   const [mensaje, setMensaje] = useState('');
   const [modoEditar, setModoEditar] = useState(false);
-  const [evaluacionSeleccionada, setEvaluacionSeleccionada] = useState(null);
+  const [evaluacionSeleccionada, setEvaluacionSeleccionada] = useState([]);
 
   useEffect(() => {
     cargarEmpleados();
@@ -26,17 +26,22 @@ const ConfiguracionEvaluaciones = () => {
   const cargarEvaluaciones = async () => {
   try {
     const res = await axios.get(BASE_URL + "/api/evaluaciones");
-    if (Array.isArray(res.data)) {
-      setEvaluaciones(res.data);
+    const data = res.data;
+
+    if (Array.isArray(data)) {
+      setEvaluaciones(data);
+    } else if (data && typeof data === "object" && data.evaluaciones) {
+      setEvaluaciones(data.evaluaciones);
     } else {
-      console.warn("⚠️ Respuesta no esperada:", res.data);
-      setEvaluaciones([]); // fallback seguro
+      console.warn("⚠️ Respuesta inesperada del backend:", data);
+      setEvaluaciones([]);
     }
-  } catch (err) {
-    console.error("❌ Error al cargar evaluaciones:", err);
-    setEvaluaciones([]); // fallback
+  } catch (error) {
+    console.error("❌ Error cargando evaluaciones:", error);
+    setEvaluaciones([]);
   }
 };
+
 
   const crearEvaluacion = async () => {
     const res = await axios.post('/api/evaluaciones/nueva', {
